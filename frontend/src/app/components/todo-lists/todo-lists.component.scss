@@ -1,0 +1,71 @@
+.todolists-container {
+    height: 100vh;
+    display: flex;
+}
+
+.todolists-list {
+    background-color: white;
+    width: 400px;
+    height: 90vh;
+    margin: 10px;
+}
+
+
+.todolists-item {
+    padding: 40px;
+    width: 100%;
+}
+
+.todolists-item-container {
+    cursor: pointer;
+    display: flex;
+    align-content: space-between;
+}
+
+.todolists-item-title {
+    margin: 0;
+    margin-top: 5px;
+}
+
+.todolists-item-description {
+    margin: 0;
+    margin-top: 10px;
+    font-size: 25px;
+}
+
+.selected-todolist {
+    background-color: lightblue;
+}
+
+.todolist-action-button {
+    margin-left: 10px;
+}
+
+.todolist-action-container {
+    margin-left: 10px;
+}
+
+.todolist-item-action-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.todos-container {
+    background-color: white;
+    width: 90%;
+    height: 92vh;
+    margin: 10px;
+}
+
+.todos-item-container {
+    display: flex;
+}
+
+.todos-item-info-container {
+    display: flex;
+}
+
+.todos-add-button {
+    margin: 10px 0 0 10px;
+}

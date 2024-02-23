@@ -1,0 +1,41 @@
+.root-container {
+    background-color: white;
+    height: 100%;
+}
+
+.account-info-container {
+    margin-top: 40px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.lastname-field {
+    margin-left: 10px;
+}
+
+.phonenumber-field {
+    margin-left: 10px;
+}
+
+.change-password-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.change-password-form {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mfa-container {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}

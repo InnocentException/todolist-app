@@ -1,0 +1,37 @@
+.login-signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.tabs {
+  width: 600px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.login-form {
+  display: flex;
+  flex-flow: column;
+}
+
+.firstname-filed {
+  width: 50%;
+}
+
+.lastname-field {
+  margin-left: 1%;
+  width: 49%;
+}
+
+.register-form {
+  display: flex;
+  flex-flow: column;
+}
+
+.phonenumber-field {
+  margin-left: 1%;
+}

@@ -1,0 +1,166 @@
+<div class="login-signup-container">
+  <mat-tab-group class="tabs" [selectedIndex]="selectedTabIndex">
+    <mat-tab class="tab-content" label="Login">
+      <mat-card class="login-card">
+        <mat-card-header>
+          <mat-card-title>Login</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form class="login-form" [formGroup]="loginForm">
+            <mat-form-field class="username-field">
+              <input
+                matInput
+                placeholder="Username"
+                formControlName="username"
+                required
+              />
+              <mat-hint *ngIf="!usernameInput?.value"
+                >Enter your Username</mat-hint
+              >
+            </mat-form-field>
+
+            <mat-form-field>
+              <input
+                matInput
+                placeholder="Password"
+                [type]="hideLoginPassword ? 'password' : 'text'"
+                required
+                formControlName="password"
+              />
+              <mat-icon
+                matSuffix
+                (click)="hideLoginPassword = !hideLoginPassword"
+                >{{
+                  hideLoginPassword ? "visibility_off" : "visibility"
+                }}</mat-icon
+              >
+              <mat-hint *ngIf="!passwordInput?.value"
+                >Enter your password</mat-hint
+              >
+            </mat-form-field>
+            <a href="/register">You do not have an Account? Register here!</a>
+            <a href="/reset_password/reset">Reset Password</a>
+            <button mat-flat-button (click)="submitLogin()" color="primary">
+              Login
+            </button>
+          </form>
+        </mat-card-content>
+        <mat-card-footer></mat-card-footer>
+      </mat-card>
+    </mat-tab>
+    <mat-tab class="tab-content" label="Register">
+      <mat-card class="register-card">
+        <mat-card-header>
+          <mat-card-title>Register</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form class="register-form" [formGroup]="signupForm">
+            <div class="name-fields">
+              <mat-form-field class="firstname-field">
+                <input
+                  matInput
+                  placeholder="First Name"
+                  formControlName="firstname"
+                  required
+                />
+                <mat-hint *ngIf="!signupFirstNameInput?.value"
+                  >Enter your Firstname</mat-hint
+                >
+              </mat-form-field>
+              <mat-form-field class="lastname-field">
+                <input
+                  matInput
+                  placeholder="Last Name"
+                  formControlName="lastname"
+                  required
+                />
+                <mat-hint *ngIf="!signupLastNameInput?.value"
+                  >Enter your Lastname</mat-hint
+                >
+              </mat-form-field>
+            </div>
+            <mat-form-field class="username-field">
+              <input
+                matInput
+                placeholder="Username"
+                formControlName="username"
+                required
+              />
+              <mat-hint *ngIf="!signupUsernameInput?.value"
+                >Enter your Username</mat-hint
+              >
+            </mat-form-field>
+            <div class="extra-fields">
+              <mat-form-field class="email-field">
+                <input
+                  matInput
+                  placeholder="Email"
+                  formControlName="email"
+                  required
+                />
+                <mat-hint *ngIf="!signupEmailInput?.value"
+                  >Enter your email</mat-hint
+                >
+              </mat-form-field>
+              <mat-form-field class="phonenumber-field">
+                <input
+                  matInput
+                  placeholder="Phonenumber"
+                  formControlName="phonenumber"
+                  required
+                />
+                <mat-hint *ngIf="!signupPhonenumberInput?.value"
+                  >Enter your phonenumber</mat-hint
+                >
+              </mat-form-field>
+            </div>
+            <mat-form-field class="password-field">
+              <input
+                matInput
+                placeholder="Password"
+                [type]="hideRegisterPassword ? 'password' : 'text'"
+                required
+                formControlName="password"
+              />
+              <mat-icon
+                matSuffix
+                (click)="hideRegisterPassword = !hideRegisterPassword"
+                >{{
+                  hideRegisterPassword ? "visibility_off" : "visibility"
+                }}</mat-icon
+              >
+              <mat-hint *ngIf="!signupPasswordInput?.value"
+                >Enter your Password</mat-hint
+              >
+            </mat-form-field>
+            <mat-form-field class="repeat-password-field">
+              <input
+                matInput
+                placeholder="Password"
+                [type]="hideRegisterRepeatPassword ? 'password' : 'text'"
+                required
+                formControlName="repeatPassword"
+              />
+              <mat-icon
+                matSuffix
+                (click)="
+                  hideRegisterRepeatPassword = !hideRegisterRepeatPassword
+                "
+                >{{
+                  hideRegisterRepeatPassword ? "visibility_off" : "visibility"
+                }}</mat-icon
+              >
+              <mat-hint *ngIf="!signupRepeatPasswordInput?.value"
+                >Repeat the Password</mat-hint
+              >
+            </mat-form-field>
+            <button mat-flat-button (click)="submitRegister()" color="primary">
+              Register
+            </button>
+          </form>
+        </mat-card-content>
+        <mat-card-footer></mat-card-footer>
+      </mat-card>
+    </mat-tab>
+  </mat-tab-group>
+</div>

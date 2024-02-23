@@ -1,0 +1,93 @@
+<div class="todolists-container">
+  <div class="todolists-list-container">
+    <mat-list class="todolists-list">
+      <div *ngFor="let todoList of todoLists; let i = index">
+        <mat-list-item
+          class="todolists-item"
+          [class.selected-todolist]="i == selectedTodoList"
+        >
+          <div class="todolists-item-container" (click)="selectedTodoList = i">
+            <div class="todolist-item-info-container">
+              <h1 class="todolists-item-title">{{ todoList.title }}</h1>
+              <p class="todolists-item-description">
+                {{ todoList.description }}
+              </p>
+            </div>
+          </div>
+        </mat-list-item>
+        <mat-divider></mat-divider>
+      </div>
+    </mat-list>
+    <div class="todolist-action-container">
+      <button
+        class="add-todolist-button"
+        mat-flat-button
+        color="primary"
+        (click)="showAddTodoListDialog()"
+      >
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+      <button
+        class="todolist-action-button"
+        mat-flat-button
+        color="warn"
+        (click)="deleteTodoList()"
+      >
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+      <button
+        class="todolist-action-button"
+        mat-flat-button
+        color="accent"
+        (click)="logout()"
+      >
+        <mat-icon>exit_to_app</mat-icon>
+        Logout
+      </button>
+      <button
+        class="todolist-action-button"
+        mat-flat-button
+        (click)="showAccountSettings()"
+      >
+        <mat-icon>settings</mat-icon>
+      </button>
+    </div>
+  </div>
+  <div class="todos-container">
+    <button
+      class="todos-add-button"
+      mat-flat-button
+      color="primary"
+      (click)="showAddTodoDialog()"
+    >
+      <mat-icon>add</mat-icon>Add
+    </button>
+    <div *ngIf="todoLists[selectedTodoList]" class="todolists-list">
+      <div
+        *ngFor="let todo of todoLists[selectedTodoList].todos; let i = index"
+      >
+        <div class="todos-item">
+          <div class="todos-item-container">
+            <div class="todos-item-action-container">
+              <button mat-mini-fab color="warn" (click)="deleteTodo(todo.uuid)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="todos-item-info-container">
+              <mat-checkbox
+                [(ngModel)]="todo.done"
+                (change)="checkTodo(todo.uuid, todo.done)"
+              ></mat-checkbox>
+              <div>
+                <p class="todos-item-title">{{ todo.text }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <mat-divider></mat-divider>
+      </div>
+    </div>
+  </div>
+</div>

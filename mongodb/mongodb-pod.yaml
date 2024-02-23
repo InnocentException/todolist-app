@@ -1,0 +1,7 @@
+pods:
+  - name: mongodb-pod
+    containers:
+      - name: mongodb-container
+        image: mongo:latest
+        ports:
+          - containerPort: 27017

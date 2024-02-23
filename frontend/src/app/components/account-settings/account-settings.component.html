@@ -1,0 +1,134 @@
+<mat-tab-group mat-stretch-tabs="true" class="root-container">
+  <mat-tab label="General">
+    <form class="register-form" [formGroup]="accountInfoForm">
+      <div class="account-info-container">
+        <div class="name-fields">
+          <mat-form-field class="firstname-field">
+            <input
+              matInput
+              placeholder="First Name"
+              formControlName="firstname"
+              required
+            />
+            <mat-hint *ngIf="!firstnameInput?.value"
+              >Enter your Firstname</mat-hint
+            >
+          </mat-form-field>
+          <mat-form-field class="lastname-field">
+            <input
+              matInput
+              placeholder="Last Name"
+              formControlName="lastname"
+              required
+            />
+            <mat-hint *ngIf="!lastnameInput?.value"
+              >Enter your Lastname</mat-hint
+            >
+          </mat-form-field>
+        </div>
+        <mat-form-field class="username-field">
+          <input
+            matInput
+            placeholder="Username"
+            formControlName="username"
+            required
+          />
+          <mat-hint *ngIf="!usernameInput?.value">Enter your Username</mat-hint>
+        </mat-form-field>
+        <div class="extra-fields">
+          <mat-form-field class="email-field">
+            <input
+              matInput
+              placeholder="Email"
+              formControlName="email"
+              required
+            />
+            <mat-hint *ngIf="!emailInput?.value">Enter your email</mat-hint>
+          </mat-form-field>
+          <mat-form-field class="phonenumber-field">
+            <input
+              matInput
+              placeholder="Phonenumber"
+              formControlName="phonenumber"
+              required
+            />
+            <mat-hint *ngIf="!phonenumberInput?.value"
+              >Enter your phonenumber</mat-hint
+            >
+          </mat-form-field>
+        </div>
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="submitAccountInfoChanges()"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </mat-tab>
+  <mat-tab label="Security">
+    <div>
+      <h2 class="change-password-container">Change Password</h2>
+      <form [formGroup]="changePasswordForm" class="change-password-form">
+        <mat-form-field class="password-field">
+          <input
+            matInput
+            placeholder="Password"
+            [type]="hidePassword ? 'password' : 'text'"
+            required
+            formControlName="password"
+          />
+          <mat-icon matSuffix (click)="hidePassword = !hidePassword">{{
+            hidePassword ? "visibility_off" : "visibility"
+          }}</mat-icon>
+          <mat-hint *ngIf="!passwordInput?.value">Enter your Password</mat-hint>
+        </mat-form-field>
+        <mat-form-field class="repeat-password-field">
+          <input
+            matInput
+            placeholder="Password"
+            [type]="hideNewPassword ? 'password' : 'text'"
+            required
+            formControlName="newPassword"
+          />
+          <mat-icon matSuffix (click)="hideNewPassword = !hideNewPassword">{{
+            hideNewPassword ? "visibility_off" : "visibility"
+          }}</mat-icon>
+          <mat-hint *ngIf="!newPasswordInput?.value"
+            >Repeat the Password</mat-hint
+          >
+        </mat-form-field>
+        <mat-form-field class="repeat-password-field">
+          <input
+            matInput
+            placeholder="Password"
+            [type]="hideRepeatNewPassword ? 'password' : 'text'"
+            required
+            formControlName="repeatNewPassword"
+          />
+          <mat-icon
+            matSuffix
+            (click)="hideRepeatNewPassword = !hideRepeatNewPassword"
+            >{{
+              hideRepeatNewPassword ? "visibility_off" : "visibility"
+            }}</mat-icon
+          >
+          <mat-hint *ngIf="!repeatNewPasswordInput?.value"
+            >Repeat the Password</mat-hint
+          >
+        </mat-form-field>
+        <button
+          mat-flat-button
+          color="primary"
+          (click)="submitPasswordChange()"
+        >
+          Change Password
+        </button>
+      </form>
+    </div>
+    <div class="mfa-container">
+      <h2>MFA</h2>
+    </div>
+  </mat-tab>
+</mat-tab-group>

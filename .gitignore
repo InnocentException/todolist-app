@@ -1,0 +1,10 @@
+/info.txt
+/backend/dist
+/backend/node_modules
+/backend/test
+
+/frontend/.vscode
+/frontend/.angular
+/frontend/node_modules
+
+/mongodb/data/*
