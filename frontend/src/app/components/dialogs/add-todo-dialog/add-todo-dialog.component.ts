@@ -14,11 +14,11 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { HttpService } from '../../services/http/http.service';
-import { AuthService } from '../../services/auth/auth.service';
+import { HttpService } from '../../../services/http/http.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { AddTodoListDialogComponent } from '../add-todo-list-dialog/add-todo-list-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TodoListProps } from '../todo-lists/todo-lists.component';
+import { TodoListProps } from '../../../utils/types';
 
 @Component({
   selector: 'app-add-todo-dialog',

@@ -1,0 +1,40 @@
+<div *ngIf="!method" class="select-method-container">
+  <mat-list role="list" class="select-method-list">
+    <mat-list-item role="listitem">
+      <div class="method-item" (click)="setMethod('mail')">
+        <mat-icon class="method-icon">mail</mat-icon>
+        <p class="method-text">Recieve MFA code via email</p>
+      </div>
+    </mat-list-item>
+    <mat-divider></mat-divider>
+    <mat-list-item role="listitem">
+      <div class="method-item" (click)="setMethod('app')">
+        <mat-icon class="method-icon">security</mat-icon>
+        <p class="method-text">Recieve MFA code via an authentification app</p>
+      </div>
+    </mat-list-item>
+  </mat-list>
+</div>
+<div *ngIf="method == 'mail'" class="mail-method-container">
+  <p>A 6 Digit Code was sent to this Email: {{ email }}.</p>
+  <p>Please enter the Code into this Field:</p>
+  <form [formGroup]="mailForm">
+    <mat-form-field class="email-code-field">
+      <input matInput placeholder="Code" formControlName="code" />
+    </mat-form-field>
+  </form>
+  <button mat-flat-button color="primary" (click)="submitMailCode()">
+    Submit
+  </button>
+</div>
+<div *ngIf="method == 'app'" class="app-method-container">
+  <p>Please enter the 6 digit code from your authenticator app into this field:</p>
+  <form [formGroup]="appForm">
+    <mat-form-field class="email-code-field">
+      <input matInput placeholder="Code" formControlName="code" />
+    </mat-form-field>
+  </form>
+  <button mat-flat-button color="primary" (click)="submitAppCode()">
+    Submit
+  </button>
+</div>

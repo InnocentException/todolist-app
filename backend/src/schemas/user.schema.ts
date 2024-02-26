@@ -1,21 +1,41 @@
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Schema } from 'mongoose';
+import { createMFASchema } from './mfa/mfa.schema';
+import { UserProps } from 'src/utils/types';
 
-@Schema()
-export class User {
-  @Prop({ unique: true, required: true })
-  uuid: string;
-  @Prop({ required: true })
-  firstname: string;
-  @Prop({ required: true })
-  lastname: string;
-  @Prop({ unique: true, required: true })
-  email: string;
-  @Prop({ unique: true, required: true })
-  phonenumber: string;
-  @Prop({ unique: true, required: true })
-  username: string;
-  @Prop({ required: true })
-  password: string;
+export function createUserSchema(): Schema<UserProps> {
+  return new Schema<UserProps>({
+    uuid: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+    firstname: {
+      type: String,
+      required: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phonenumber: {
+      type: String,
+      required: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    mfa: {
+      type: createMFASchema(),
+      required: true,
+    },
+  });
 }
-
-export const UserSchema = SchemaFactory.createForClass(User);

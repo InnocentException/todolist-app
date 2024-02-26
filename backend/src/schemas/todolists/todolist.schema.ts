@@ -1,7 +1,6 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
-import { TodoListProps } from 'src/services/todo-lists/todo-lists.service';
 import { Schema } from 'mongoose';
 import { createTodoSchema } from './todo.schema';
+import { TodoListProps } from 'src/utils/types';
 
 export function createTodoListSchema(): Schema<TodoListProps> {
   return new Schema<TodoListProps>({

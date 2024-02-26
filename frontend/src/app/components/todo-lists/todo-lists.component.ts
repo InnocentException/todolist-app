@@ -13,27 +13,15 @@ import {
   MatDialogTitle,
   MatDialogContent,
 } from '@angular/material/dialog';
-import { AddTodoListDialogComponent } from '../add-todo-list-dialog/add-todo-list-dialog.component';
+import { AddTodoListDialogComponent } from '../dialogs/add-todo-list-dialog/add-todo-list-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MatDivider, MatDividerModule } from '@angular/material/divider';
-import { AddTodoDialogComponent } from '../add-todo-dialog/add-todo-dialog.component';
+import { AddTodoDialogComponent } from '../dialogs/add-todo-dialog/add-todo-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-export interface TodoProps {
-  uuid: string;
-  text: string;
-  done: boolean;
-}
-
-export interface TodoListProps {
-  uuid: string;
-  title: string;
-  description: string;
-  todos: TodoProps[]
-}
+import { TodoListProps } from '../../utils/types';
 
 @Component({
   selector: 'app-todo-lists',
@@ -81,6 +69,7 @@ export class TodoListsComponent {
   ) {
     this.todoLists = [];
     this.selectedTodoList = 0;
+    if (this.authService.hasSession())
     this.fetchTodoLists();
   }
 

@@ -2,23 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TodoListNotFoundError, TodoListRemovalError } from 'src/utils/errors';
-import { createTodoListSchema } from 'src/schemas/todolist.schema';
+import { createTodoListSchema } from 'src/schemas/todolists/todolist.schema';
 import { ObjectId } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-
-export interface TodoProps {
-  uuid: string;
-  text: string;
-  done: boolean;
-}
-
-export interface TodoListProps {
-  uuid: string;
-  useruid: string;
-  title: string;
-  description: string;
-  todos: TodoProps[];
-}
+import { TodoListProps, TodoProps } from 'src/utils/types';
 
 @Injectable()
 export class TodoListsService {
@@ -50,7 +37,14 @@ export class TodoListsService {
     todoList.uuid = uuidv4();
     while (await this.getTodoListByUUID(todoList.uuid))
       todoList.uuid = uuidv4();
-    todoList.todos = [];
+    todoList.todos = [
+      // This is required, becaus the Mongoose Module needs at least one Todo to store the Todolist
+      {
+        uuid: uuidv4(),
+        text: 'First Todo',
+        done: false,
+      },
+    ];
     const newTodoList = new this.todoListModel(todoList);
     newTodoList.save();
   }

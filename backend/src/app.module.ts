@@ -8,6 +8,7 @@ import { UserService } from './services/user/user.service';
 import { AuthService } from './services/auth/auth.service';
 import { MailModule } from './modules/mail.module';
 import { MailService } from './services/mail/mail.service';
+import { MfaService } from './services/mfa/mfa.service';
 
 @Module({
   imports: [MongoDBModule, MailModule, SchedulerModule],
@@ -18,6 +19,7 @@ import { MailService } from './services/mail/mail.service';
     TodoListsService,
     TasksService,
     MailService,
+    MfaService,
   ],
 })
 export class AppModule {}

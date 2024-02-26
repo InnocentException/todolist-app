@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, StringSchemaDefinition, Types } from 'mongoose';
-import { User } from 'src/schemas/user.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from '../auth/auth.service';
 import { MailService } from '../mail/mail.service';
@@ -10,46 +9,20 @@ import {
   UserNotFoundError,
 } from 'src/utils/errors';
 import { Session } from 'src/schemas/session.schema';
-
-export interface UserProps {
-  uuid: string;
-  firstname: string;
-  lastname: string;
-  username: string;
-  email: string;
-  phonenumber;
-  password: string;
-}
+import { UserProps } from 'src/utils/types';
 
 @Injectable()
 export class UserService {
-  private resetPasswordTokens: Map<String, String>;
+  private resetPasswordTokens: Map<String, { useruid: string; expires: Date }>;
   constructor(
-    @InjectModel(User.name)
-    private userModel: Model<User>,
+    @InjectModel('User')
+    private userModel: Model<UserProps>,
     @InjectModel(Session.name)
     private sessionModel: Model<Session>,
     private authService: AuthService,
     private mailService: MailService,
   ) {
-    this.resetPasswordTokens = new Map<String, String>();
-  }
-
-  convertModel(
-    model: Document<unknown, {}, User> &
-      User & {
-        _id: Types.ObjectId;
-      },
-  ): UserProps {
-    return {
-      uuid: model.uuid,
-      firstname: model.firstname,
-      lastname: model.lastname,
-      username: model.username,
-      email: model.email,
-      phonenumber: model.phonenumber,
-      password: model.password,
-    };
+    this.resetPasswordTokens = new Map();
   }
 
   async addUser(
@@ -71,33 +44,31 @@ export class UserService {
       email,
       phonenumber,
       password,
+      mfa: {
+        mail: {
+          enabled: false,
+        },
+        app: {
+          enabled: false,
+        },
+      },
     });
     newUser.save();
   }
 
   removeUser(uuid: string) {}
 
-  async getUserByUsername(username: string): Promise<UserProps> {
-    const foundUser = (await this.userModel.find({ username }))[0];
-    if (foundUser) {
-      return this.convertModel(foundUser);
-    } else {
-      return null;
-    }
-  }
-
-  async getUserByUUID(uuid: string): Promise<UserProps> {
-    const foundUser = (await this.userModel.find({ uuid: uuid }))[0];
-    if (foundUser) {
-      return this.convertModel(foundUser);
-    } else {
-      return null;
-    }
-  }
-
-  async handleResetPasswordRequest(user: UserProps) {
+  async handleResetPasswordRequest(
+    user: Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      },
+  ) {
     const token = this.authService.generateTokenBytes();
-    this.resetPasswordTokens.set(token, user.uuid);
+    this.resetPasswordTokens.set(token, {
+      useruid: user.uuid,
+      expires: new Date(Date.now() + 5 * 60 * 1000),
+    });
     await this.mailService.sendEmail(
       user.email,
       'Password Reset',
@@ -113,55 +84,117 @@ export class UserService {
   }
 
   async resetPassword(token: string, password: string) {
-    const useruid = this.resetPasswordTokens.get(token);
-    if (useruid) {
-      const user = (await this.userModel.find({ uuid: useruid }))[0];
-      user.password = this.authService.hashPassword(password);
-      user.save();
+    const data = this.resetPasswordTokens.get(token);
+    if (data) {
+      if (data.expires.getTime() > new Date(Date.now()).getTime()) {
+        const user = (await this.userModel.find({ uuid: data.useruid }))[0];
+        user.password = this.authService.hashPassword(password);
+        user.save();
+        this.resetPasswordTokens.delete(token);
+      } else {
+        this.resetPasswordTokens.delete(token);
+        throw new PasswordResetTokenNotValid('This Token is not valid!');
+      }
       this.resetPasswordTokens.delete(token);
     } else {
       throw new PasswordResetTokenNotValid('This Token is not valid!');
     }
   }
 
-  async getUserBySessionToken(token: string): Promise<UserProps> {
-    const foundSession = (await this.sessionModel.find({ token }))[0];
-    if (foundSession) {
-      const foundUser = (
-        await this.userModel.find({ uuid: foundSession.useruid })
-      )[0];
-      return this.convertModel(foundUser);
-    } else {
-      return null;
-    }
-  }
-
   async changeUser(
-    user: UserProps,
+    user: Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      },
     firstname: string,
     lastname: string,
     username: string,
     email: string,
     phonenumber: string,
   ) {
-    const foundUser = (await this.userModel.find({ uuid: user.uuid }))[0];
-    if (foundUser) {
-      if (firstname != '') foundUser.firstname = firstname;
-      if (lastname != '') foundUser.lastname = lastname;
-      if (username != '') foundUser.username = username;
-      if (email != '') foundUser.email = email;
-      if (phonenumber != '') foundUser.phonenumber = phonenumber;
-      foundUser.save();
+    if (user) {
+      if (firstname != '') user.firstname = firstname;
+      if (lastname != '') user.lastname = lastname;
+      if (username != '') user.username = username;
+      if (email != '') user.email = email;
+      if (phonenumber != '') user.phonenumber = phonenumber;
+      user.save();
     } else {
       throw new UserNotFoundError('This user could not be found!');
     }
   }
 
-  async changeUserPassword(user: UserProps, password: string) {
-    const foundUser = (await this.userModel.find({ uuid: user.uuid }))[0];
-    if (foundUser) {
-      foundUser.password = this.authService.hashPassword(password);
-      foundUser.save();
+  async changeUserPassword(
+    user: Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      },
+    password: string,
+  ) {
+    if (user) {
+      user.password = this.authService.hashPassword(password);
+      user.save();
     }
+  }
+
+  async getUserBySessionToken(token: string): Promise<
+    Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      }
+  > {
+    const foundSession = (await this.sessionModel.find({ token }))[0];
+    if (foundSession) {
+      const foundUser = (
+        await this.userModel.find({ uuid: foundSession.useruid })
+      )[0];
+      return foundUser;
+    } else {
+      return null;
+    }
+  }
+
+  async getUserByUsername(username: string): Promise<
+    Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      }
+  > {
+    const foundUser = (await this.userModel.find({ username }))[0];
+    if (foundUser) {
+      return foundUser;
+    } else {
+      return null;
+    }
+  }
+
+  async getUserByUUID(uuid: string): Promise<
+    Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      }
+  > {
+    const foundUser = (await this.userModel.find({ uuid: uuid }))[0];
+    if (foundUser) {
+      return foundUser;
+    } else {
+      return null;
+    }
+  }
+
+  async changeMailMFA(
+    user: Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      },
+    enabled: boolean,
+    mail: string,
+  ) {
+    console.log(
+      `Changing Mail MFA for user '${user.uuid}' to ${enabled ? 'enabled' : 'disabled'} with email '${mail}' ...`,
+    );
+    user.mfa.mail.enabled = enabled;
+    user.mfa.mail.mailAddress = mail;
+    user.save();
   }
 }

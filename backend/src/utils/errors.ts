@@ -33,3 +33,9 @@ export class PasswordResetTokenNotValid extends Error {
     super(msg);
   }
 }
+
+export class MailMFACodeNotValid extends Error {
+  constructor(msg: string) {
+    super(msg);
+  }
+}

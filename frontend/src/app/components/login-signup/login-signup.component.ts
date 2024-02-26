@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
-import { WebsocketService } from '../../services/websocket/websocket.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
@@ -14,14 +13,12 @@ import {
 } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth/auth.service';
 import { HttpService } from '../../services/http/http.service';
 import { Router } from '@angular/router';
-import {
-  MatSnackBar,
-} from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PhoneInputComponent } from '../phone-input/phone-input.component';
+import { MfaComponent } from '../mfa/mfa.component';
 
 @Component({
   selector: 'app-login-signup',
@@ -37,12 +34,16 @@ import { PhoneInputComponent } from '../phone-input/phone-input.component';
     ReactiveFormsModule,
     CommonModule,
     PhoneInputComponent,
+    MfaComponent,
   ],
   templateUrl: './login-signup.component.html',
   styleUrl: './login-signup.component.scss',
 })
 export class LoginSignupComponent {
   selectedTabIndex = 0;
+  mfaRequired: boolean = false;
+  mfaMethod: string | null = null;
+  useruid: string = '';
 
   constructor(
     private authService: AuthService,
@@ -116,19 +117,17 @@ export class LoginSignupComponent {
 
     if (response.status == 'success') {
       const session = response.data.session;
-      this.authService.updateSession(response.data.session);
+      this.authService.updateSession(session);
       this.router.navigate(['/todos']);
+    } else if (response.status == 'mfa') {
+      this.mfaRequired = true;
+      this.mfaMethod = response.data.method;
+      this.useruid = response.data.useruid;
     } else {
       this.snackBar.open(response.description, 'Close', {
         duration: 2000,
       });
     }
-
-    // this.wsService.send({
-    //   cmd: 'login',
-    //   username: this.usernameInput?.value,
-    //   password: this.passwordInput?.value,
-    // });
   }
 
   async submitRegister() {
@@ -152,14 +151,5 @@ export class LoginSignupComponent {
         duration: 2000,
       });
     }
-
-    // this.wsService.send({
-    //   cmd: 'register',
-    //   firstname: this.signupFirstNameInput?.value,
-    //   lastname: this.signupLastNameInput?.value,
-    //   username: this.signupUsernameInput?.value,
-    //   password: this.signupPasswordInput?.value,
-    //   repeatPassword: this.signupRepeatPasswordInput?.value,
-    // });
   }
 }

@@ -1,4 +1,4 @@
-<div class="login-signup-container">
+<div *ngIf="!mfaRequired" class="login-signup-container">
   <mat-tab-group class="tabs" [selectedIndex]="selectedTabIndex">
     <mat-tab class="tab-content" label="Login">
       <mat-card class="login-card">
@@ -164,3 +164,5 @@
     </mat-tab>
   </mat-tab-group>
 </div>
+
+<app-mfa *ngIf="mfaRequired" [method]="mfaMethod" [useruid]="useruid"></app-mfa>

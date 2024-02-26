@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Session, SessionSchema } from "src/schemas/session.schema";
-import { createTodoListSchema } from "src/schemas/todolist.schema";
-import { User, UserSchema } from "src/schemas/user.schema";
+import { createTodoListSchema } from "src/schemas/todolists/todolist.schema";
+import { createUserSchema } from "src/schemas/user.schema";
 
 @Module({
   imports: [
@@ -11,8 +11,8 @@ import { User, UserSchema } from "src/schemas/user.schema";
     ),
     MongooseModule.forFeature([
       {
-        name: User.name,
-        schema: UserSchema,
+        name: 'User',
+        schema: createUserSchema(),
       },
       {
         name: Session.name,

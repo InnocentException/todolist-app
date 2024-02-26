@@ -17,15 +17,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { HttpService } from '../../services/http/http.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-export interface UserProps {
-  uuid: string;
-  firstname: string;
-  lastname: string;
-  username: string;
-  email: string;
-  phonenumber: string;
-}
+import { MatListModule } from '@angular/material/list';
+import { UserProps } from '../../utils/types';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfigurateAppMfaComponent } from '../dialogs/configurate-app-mfa/configurate-app-mfa.component';
 
 @Component({
   selector: 'app-account-settings',
@@ -40,6 +36,9 @@ export interface UserProps {
     MatIconModule,
     ReactiveFormsModule,
     CommonModule,
+    MatListModule,
+    MatAccordion,
+    MatExpansionModule,
   ],
   templateUrl: './account-settings.component.html',
   styleUrl: './account-settings.component.scss',
@@ -62,6 +61,10 @@ export class AccountSettingsComponent {
       this.usernameInput?.setValue(this.account?.username);
       this.emailInput?.setValue(this.account?.email);
       this.phonenumberInput?.setValue(this.account?.phonenumber);
+
+      this.emailMFAForm
+        .get('email')
+        ?.setValue(this.account?.mfa.mail.mailAddress);
     } else {
       this.snackBar.open(response.description, 'Close', {
         duration: 2000,
@@ -73,7 +76,8 @@ export class AccountSettingsComponent {
     private router: Router,
     private authService: AuthService,
     private httpService: HttpService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.fetchAccountInfo();
 
@@ -165,6 +169,67 @@ export class AccountSettingsComponent {
       this.snackBar.open(response.description, 'Close', {
         duration: 2000,
       });
+    }
+  }
+
+  emailMFAForm: FormGroup = new FormGroup({
+    email: new FormControl('', [Validators.required]),
+  });
+
+  async toggleMailMFA() {
+    const response = await this.httpService.post(
+      'http://localhost:3100/api/account/mfa/mail/setup',
+      {
+        session: this.authService.getSession(),
+        enabled: !this.account?.mfa?.mail?.enabled,
+        mailAddress: this.emailMFAForm.get('email')?.value,
+      }
+    );
+
+    if (response.status == 'success') {
+      this.fetchAccountInfo();
+    } else {
+      this.snackBar.open(response.description, 'Close', {
+        duration: 2000,
+      });
+    }
+  }
+
+  authUrl: string = "";
+
+  async toggleAppMFA() {
+    const response = await this.httpService.post(
+      'http://localhost:3100/api/account/mfa/app/setup',
+      {
+        session: this.authService.getSession(),
+        enabled: !this.account?.mfa.app.enabled,
+      }
+    );
+    if (!this.account?.mfa?.app?.enabled) {
+      if (response.status == 'success') {
+        this.authUrl = response.data.tfaURL;
+        const dialogRef = this.dialog.open(ConfigurateAppMfaComponent, {
+          exitAnimationDuration: 500,
+          enterAnimationDuration: 500,
+          data: { authUrl: this.authUrl, useruid: this.account?.uuid },
+        });
+
+        dialogRef.afterClosed().subscribe(() => {
+          this.fetchAccountInfo();
+        });
+      } else {
+        this.snackBar.open(response.description, 'Close', {
+          duration: 2000,
+        });
+      }
+    } else {
+      if (response.status == 'success') {
+        this.fetchAccountInfo();
+      } else {
+        this.snackBar.open(response.description, 'Close', {
+          duration: 2000,
+        });
+      }
     }
   }
 }

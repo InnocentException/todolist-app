@@ -1,0 +1,3 @@
+complete mfa via email 
+add mfa via app authentification
+add funktion to check if eather mfa functions ex: add "test" button so that an email is going to be sent and the user has to enter the code to check if this method works and with the app the same

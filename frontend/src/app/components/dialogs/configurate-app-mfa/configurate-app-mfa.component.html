@@ -1,0 +1,7 @@
+<qrcode [qrdata]="data.authUrl"></qrcode>
+<form [formGroup]="appForm">
+    <mat-form-field>
+        <input matInput placeholder="Code" formControlName="code"/>
+    </mat-form-field>
+    <button mat-flat-button (click)="submitAppMFACode()">Submit</button>
+</form>

@@ -3,14 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as crypto from 'crypto';
 import { Model } from 'mongoose';
 import { Session } from 'src/schemas/session.schema';
-import { User } from 'src/schemas/user.schema';
-import { UserProps, UserService } from 'src/services/user/user.service';
-
-export interface SessionProps {
-  useruid: string;
-  token: string;
-  expires: Date;
-}
+import { SessionProps, UserProps } from 'src/utils/types';
 
 @Injectable()
 export class AuthService {

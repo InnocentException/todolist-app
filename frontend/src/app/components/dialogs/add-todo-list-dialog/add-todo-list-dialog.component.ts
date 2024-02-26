@@ -1,6 +1,4 @@
 import { Component, Inject } from '@angular/core';
-import { HttpService } from '../../services/http/http.service';
-import { AuthService } from '../../services/auth/auth.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +6,8 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpService } from '../../../services/http/http.service';
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
   selector: 'app-add-todo-list-dialog',

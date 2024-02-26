@@ -2,6 +2,7 @@
 /backend/dist
 /backend/node_modules
 /backend/test
+/backend/.env
 
 /frontend/.vscode
 /frontend/.angular

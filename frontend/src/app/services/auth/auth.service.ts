@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-
-export interface Session {
-  token: string,
-  expires: Date,
-};
+import { Session } from '../../utils/types';
 
 @Injectable({
   providedIn: 'root',

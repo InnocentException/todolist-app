@@ -39,3 +39,17 @@
     align-items: center;
     justify-content: center;
 }
+
+.method-list {
+    width: 50%;
+    height: 500px;
+}
+
+.method-item {
+    display: flex;
+    align-items: center;
+}
+
+.method-text {
+    margin-left: 10px;
+}

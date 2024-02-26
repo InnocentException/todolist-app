@@ -129,6 +129,66 @@
     </div>
     <div class="mfa-container">
       <h2>MFA</h2>
+      <mat-accordion class="method-list" multi>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="method-icon">security</mat-icon>
+              <p class="method-text">Recieve MFA code via email</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="method-item">
+            <button
+              *ngIf="!account?.mfa?.mail?.enabled"
+              mat-flat-button
+              (click)="toggleMailMFA()"
+            >
+              Enable
+            </button>
+            <button
+              *ngIf="account?.mfa?.mail?.enabled"
+              mat-flat-button
+              (click)="toggleMailMFA()"
+            >
+              Disable
+            </button>
+            <form [formGroup]="emailMFAForm">
+              <input
+                matInput
+                placeholder="Email"
+                required
+                formControlName="email"
+              />
+            </form>
+          </div>
+        </mat-expansion-panel>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon class="method-icon">security</mat-icon>
+              <p class="method-text">Recieve MFA code via an authentication app</p>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="method-item">
+            <button
+              *ngIf="!account?.mfa?.app?.enabled"
+              mat-flat-button
+              (click)="toggleAppMFA()"
+            >
+              Enable
+            </button>
+            <button
+              *ngIf="account?.mfa?.app?.enabled"
+              mat-flat-button
+              (click)="toggleAppMFA()"
+            >
+              Disable
+            </button>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
     </div>
   </mat-tab>
 </mat-tab-group>

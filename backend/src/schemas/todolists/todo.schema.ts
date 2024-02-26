@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import { TodoProps } from "src/services/todo-lists/todo-lists.service";
+import { TodoProps } from "src/utils/types";
 
 export function createTodoSchema(): Schema<TodoProps> {
   return new Schema<TodoProps>({
