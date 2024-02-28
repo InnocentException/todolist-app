@@ -3,7 +3,7 @@ import { UserProps } from 'src/utils/types';
 import { MailService } from '../mail/mail.service';
 import * as speakeasy from 'speakeasy';
 import { Document, Types } from 'mongoose';
-import { MailMFACodeNotValid } from 'src/utils/errors';
+import { MailMFACodeNotValidError } from 'src/utils/errors';
 
 @Injectable()
 export class MfaService {
@@ -35,10 +35,10 @@ export class MfaService {
       if (data.expires.getTime() > new Date(Date.now()).getTime()) {
         return data.user;
       } else {
-        throw new MailMFACodeNotValid('This code is not valid!');
+        throw new MailMFACodeNotValidError('This code is not valid!');
       }
     } else {
-      throw new MailMFACodeNotValid('This code is not valid!');
+      throw new MailMFACodeNotValidError('This code is not valid!');
     }
   }
 

@@ -10,13 +10,13 @@ export class TodoListNotFoundError extends Error {
   }
 }
 
-export class TodoNotFound extends Error {
+export class TodoNotFoundError extends Error {
   constructor(msg: string) {
     super(msg);
   }
 }
 
-export class SessionNotValid extends Error {
+export class SessionNotValidError extends Error {
   constructor(msg: string) {
     super(msg);
   }
@@ -28,13 +28,13 @@ export class TodoListRemovalError extends Error {
   }
 }
 
-export class PasswordResetTokenNotValid extends Error {
+export class PasswordResetTokenNotValidError extends Error {
   constructor(msg: string) {
     super(msg);
   }
 }
 
-export class MailMFACodeNotValid extends Error {
+export class MailMFACodeNotValidError extends Error {
   constructor(msg: string) {
     super(msg);
   }

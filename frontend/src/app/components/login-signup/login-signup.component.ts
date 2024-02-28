@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PhoneInputComponent } from '../phone-input/phone-input.component';
 import { MfaComponent } from '../mfa/mfa.component';
+import { TodolistService } from '../../services/todolist/todolist.service';
 
 @Component({
   selector: 'app-login-signup',
@@ -48,6 +49,7 @@ export class LoginSignupComponent {
   constructor(
     private authService: AuthService,
     private httpService: HttpService,
+    private todolistsService: TodolistService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {

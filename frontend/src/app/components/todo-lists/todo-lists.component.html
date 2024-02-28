@@ -1,12 +1,76 @@
 <div class="todolists-container">
   <div class="todolists-list-container">
     <mat-list class="todolists-list">
-      <div *ngFor="let todoList of todoLists; let i = index">
-        <mat-list-item
-          class="todolists-item"
-          [class.selected-todolist]="i == selectedTodoList"
+      <div class="todolist-list-title-container">
+        <p class="todolist-list-title">Owned todolists</p>
+      </div>
+      <div class="todolist-action-container">
+        <button
+          matTooltip="Add a todolist"
+          matTooltipPosition="above"
+          class="add-todolist-button"
+          mat-flat-button
+          color="primary"
+          (click)="showAddTodoListDialog()"
         >
-          <div class="todolists-item-container" (click)="selectedTodoList = i">
+          <mat-icon>add</mat-icon>
+          Add
+        </button>
+        <button
+          matTooltip="Delete this todolist"
+          matTooltipPosition="above"
+          class="todolist-action-button"
+          mat-flat-button
+          color="warn"
+          (click)="
+            todolistService.deleteTodoList(
+              todolistService.todoLists[todolistService.selectedTodoList].uuid
+            )
+          "
+        >
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button
+          matTooltip="Signout of your account"
+          matTooltipPosition="above"
+          class="todolist-action-button"
+          mat-flat-button
+          color="accent"
+          (click)="logout()"
+        >
+          <mat-icon>exit_to_app</mat-icon>
+          Logout
+        </button>
+        <button
+          matTooltip="Account settings"
+          matTooltipPosition="above"
+          class="todolist-action-button"
+          mat-flat-button
+          (click)="showAccountSettings()"
+        >
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+      <div
+        *ngFor="
+          let todoList of todolistService.visualizedTodoLists;
+          let i = index
+        "
+      >
+        <div
+          class="todolists-item"
+          [class.selected-todolist]="
+            todolistService.todoListMode == 'owned' &&
+            todolistService.getSelectedTodoList(i) ==
+              todolistService.selectedTodoList
+          "
+          (click)="todolistService.setSelectedTodoList(i)"
+        >
+          @if(isDeadlineReached(todoList.deadline)) {
+          <div class="deadline-exeeded-container">!</div>
+          }
+          <div class="todolists-item-container">
             <div class="todolist-item-info-container">
               <h1 class="todolists-item-title">{{ todoList.title }}</h1>
               <p class="todolists-item-description">
@@ -14,80 +78,207 @@
               </p>
             </div>
           </div>
-        </mat-list-item>
+        </div>
         <mat-divider></mat-divider>
       </div>
     </mat-list>
-    <div class="todolist-action-container">
-      <button
-        class="add-todolist-button"
-        mat-flat-button
-        color="primary"
-        (click)="showAddTodoListDialog()"
-      >
-        <mat-icon>add</mat-icon>
-        Add
-      </button>
-      <button
-        class="todolist-action-button"
-        mat-flat-button
-        color="warn"
-        (click)="deleteTodoList()"
-      >
-        <mat-icon>delete</mat-icon>
-        Delete
-      </button>
-      <button
-        class="todolist-action-button"
-        mat-flat-button
-        color="accent"
-        (click)="logout()"
-      >
-        <mat-icon>exit_to_app</mat-icon>
-        Logout
-      </button>
-      <button
-        class="todolist-action-button"
-        mat-flat-button
-        (click)="showAccountSettings()"
-      >
-        <mat-icon>settings</mat-icon>
-      </button>
+    <mat-paginator
+      #paginator
+      class="todolist-paginator"
+      (page)="handleTodoListPageEvent($event)"
+      [length]="todolistService.todoLists.length"
+      [pageSize]="todolistService.todoListPageSize"
+      [showFirstLastButtons]="true"
+      [hidePageSize]="true"
+      [pageIndex]="todolistService.todoListPageIndex"
+      aria-label="Select page"
+    />
+  </div>
+  <div>
+    <div style="display: flex; flex-flow: column">
+      <div class="todos-container">
+        <div class="todo-action-container">
+          <button
+            matTooltip="Add a todo"
+            matTooltipPosition="above"
+            mat-flat-button
+            color="primary"
+            (click)="showAddTodoDialog()"
+          >
+            <mat-icon>add</mat-icon>Add
+          </button>
+          <button
+            matTooltip="Delete this todo"
+            matTooltipPosition="above"
+            class="todo-remove-button"
+            mat-flat-button
+            color="warn"
+            (click)="onDeleteTodo()"
+          >
+            <mat-icon>delete</mat-icon>Delete
+          </button>
+          <button
+            matTooltip="Share this todolist"
+            matTooltipPosition="above"
+            class="todo-remove-button"
+            mat-flat-button
+            color="accent"
+            (click)="
+              showShareTodoListDialog(
+                todolistService.todoLists[todolistService.selectedTodoList]
+              )
+            "
+          >
+            <mat-icon>share</mat-icon>Share
+          </button>
+        </div>
+
+        <div
+          *ngIf="todolistService.todoLists[todolistService.selectedTodoList]"
+          class="todos-list"
+        >
+          <div>
+            <div
+              *ngFor="
+                let todo of todolistService.todoListMode == 'owned'
+                  ? todolistService.visualizedTodos
+                  : todolistService.sharedVisualizedTodos;
+                let i = index
+              "
+            >
+              <div
+                (click)="
+                  todolistService.todoListMode == 'owned'
+                    ? todolistService.setSelectedTodo(i)
+                    : todolistService.setSharedSelectedTodo(i)
+                "
+                class="todo-item"
+                [class.selected-todo]="
+                  todolistService.todoListMode == 'owned'
+                    ? todolistService.getSelectedTodo(i) ==
+                      todolistService.selectedTodo
+                    : todolistService.getSharedSelectedTodo(i) ==
+                      todolistService.sharedSelectedTodo
+                "
+              >
+                <div class="todos-item">
+                  <div class="todos-item-container">
+                    <div class="todos-item-info-container">
+                      <mat-checkbox
+                        [(ngModel)]="todo.done"
+                        (change)="
+                          todolistService.checkTodo(todo.uuid, todo.done)
+                        "
+                      ></mat-checkbox>
+                      <div>
+                        <p class="todos-item-title">{{ todo.text }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <mat-divider></mat-divider>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <mat-paginator
+        #paginator
+        class="todo-paginator"
+        (page)="
+          todolistService.todoListMode == 'owned'
+            ? handleTodoPageEvent($event)
+            : handleSharedTodoPageEvent($event)
+        "
+        [length]="
+          todolistService.todoListMode == 'owned'
+            ? todolistService.todoLists[todolistService.selectedTodoList]
+              ? todolistService.todoLists[todolistService.selectedTodoList]
+                  .todos.length
+              : 0
+            : todolistService.sharedTodoLists[
+                todolistService.sharedSelectedTodoList
+              ]
+            ? todolistService.sharedTodoLists[
+                todolistService.sharedSelectedTodoList
+              ].todos.length
+            : 0
+        "
+        [pageSize]="todolistService.todoPageSize"
+        [showFirstLastButtons]="true"
+        [pageIndex]="
+          todolistService.todoListMode == 'owned'
+            ? todolistService.todoPageIndex
+            : todolistService.sharedTodoPageIndex
+        "
+        aria-label="Select page"
+      />
     </div>
   </div>
-  <div class="todos-container">
-    <button
-      class="todos-add-button"
-      mat-flat-button
-      color="primary"
-      (click)="showAddTodoDialog()"
-    >
-      <mat-icon>add</mat-icon>Add
-    </button>
-    <div *ngIf="todoLists[selectedTodoList]" class="todolists-list">
+  <div class="todolists-list-container">
+    <mat-list class="todolists-list">
+      <div class="todolist-list-title-container">
+        <p class="todolist-list-title">Shared todolists</p>
+      </div>
+      <div class="todolist-action-container">
+        <button
+          matTooltip="Delete this shared todolist"
+          matTooltipPosition="above"
+          class="todolist-action-button"
+          mat-flat-button
+          color="warn"
+          (click)="
+            todolistService.deleteTodoList(
+              todolistService.sharedTodoLists[
+                todolistService.sharedSelectedTodoList
+              ].uuid
+            )
+          "
+        >
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
       <div
-        *ngFor="let todo of todoLists[selectedTodoList].todos; let i = index"
+        *ngFor="
+          let sharedTodoList of todolistService.sharedVisualizedTodoLists;
+          let i = index
+        "
       >
-        <div class="todos-item">
-          <div class="todos-item-container">
-            <div class="todos-item-action-container">
-              <button mat-mini-fab color="warn" (click)="deleteTodo(todo.uuid)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-            <div class="todos-item-info-container">
-              <mat-checkbox
-                [(ngModel)]="todo.done"
-                (change)="checkTodo(todo.uuid, todo.done)"
-              ></mat-checkbox>
-              <div>
-                <p class="todos-item-title">{{ todo.text }}</p>
-              </div>
+        <div
+          class="todolists-item"
+          [class.selected-todolist]="
+            todolistService.todoListMode == 'shared' &&
+            todolistService.getSharedSelectedTodoList(i) ==
+              todolistService.sharedSelectedTodoList
+          "
+          (click)="todolistService.setSharedSelectedTodoList(i)"
+        >
+          @if(isDeadlineReached(sharedTodoList.deadline)) {
+          <div class="deadline-exeeded-container">!</div>
+          }
+          <div class="todolists-item-container">
+            <div class="todolist-item-info-container">
+              <h1 class="todolists-item-title">{{ sharedTodoList.title }}</h1>
+              <p class="todolists-item-description">
+                {{ sharedTodoList.description }}
+              </p>
             </div>
           </div>
         </div>
         <mat-divider></mat-divider>
       </div>
-    </div>
+    </mat-list>
+    <mat-paginator
+      #paginator
+      class="todolist-paginator"
+      (page)="handleSharedTodoListPageEvent($event)"
+      [length]="todolistService.sharedTodoLists.length"
+      [pageSize]="todolistService.todoListPageSize"
+      [showFirstLastButtons]="true"
+      [hidePageSize]="true"
+      [pageIndex]="todolistService.sharedTodoListPageIndex"
+      aria-label="Select page"
+    />
   </div>
 </div>

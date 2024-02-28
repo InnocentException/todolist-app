@@ -5,24 +5,20 @@ import { MatListModule } from '@angular/material/list';
 import { HttpService } from '../../services/http/http.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogTitle,
-  MatDialogContent,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AddTodoListDialogComponent } from '../dialogs/add-todo-list-dialog/add-todo-list-dialog.component';
 import { CommonModule } from '@angular/common';
-import { MatDivider, MatDividerModule } from '@angular/material/divider';
+import { MatDividerModule } from '@angular/material/divider';
 import { AddTodoDialogComponent } from '../dialogs/add-todo-dialog/add-todo-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TodoListProps } from '../../utils/types';
-
+import { TodoListProps, TodoProps } from '../../utils/types';
+import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
+import { TodolistService } from '../../services/todolist/todolist.service';
+import { ConfigureShareTodolistDialogComponent } from '../dialogs/configure-share-todolist-dialog/configure-share-todolist-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-todo-lists',
   standalone: true,
@@ -35,42 +31,25 @@ import { TodoListProps } from '../../utils/types';
     MatCheckboxModule,
     FormsModule,
     MatFormFieldModule,
+    MatPaginatorModule,
+    MatTooltipModule,
   ],
   templateUrl: './todo-lists.component.html',
   styleUrl: './todo-lists.component.scss',
 })
 export class TodoListsComponent {
-  todoLists: TodoListProps[];
-  selectedTodoList: number;
-
-  async fetchTodoLists() {
-    const response = await this.httpService.post(
-      'http://localhost:3100/api/todolists',
-      {
-        session: this.authService.getSession(),
-      }
-    );
-
-    if (response.status == 'success') {
-      this.todoLists = response.data.todoLists;
-    } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
-    }
-  }
-
   constructor(
-    private router: Router,
-    private authService: AuthService,
-    private httpService: HttpService,
-    public dialog: MatDialog,
-    private snackBar: MatSnackBar
+    protected router: Router,
+    protected authService: AuthService,
+    protected todolistService: TodolistService,
+    protected httpService: HttpService,
+    protected snackBar: MatSnackBar,
+    protected dialog: MatDialog
   ) {
-    this.todoLists = [];
-    this.selectedTodoList = 0;
-    if (this.authService.hasSession())
-    this.fetchTodoLists();
+    if (this.authService.hasSession()) {
+      todolistService.fetchTodoLists();
+      todolistService.fetchSharedTodoLists();
+    }
   }
 
   showAddTodoListDialog() {
@@ -83,87 +62,29 @@ export class TodoListsComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result == 'success') {
-        this.fetchTodoLists();
+        this.todolistService.fetchTodoLists();
+        this.todolistService.fetchSharedTodoLists();
       }
     });
   }
 
   showAddTodoDialog() {
-    if (this.todoLists[this.selectedTodoList]) {
+    if (this.todolistService.todoLists[this.todolistService.selectedTodoList]) {
       const dialogRef = this.dialog.open(AddTodoDialogComponent, {
         width: '30%',
         height: '30%',
         exitAnimationDuration: 500,
         enterAnimationDuration: 500,
-        data: {
-          selectedTodoList: this.todoLists[this.selectedTodoList],
-        },
       });
 
       dialogRef.afterClosed().subscribe((result) => {
         if (result == 'success') {
-          this.fetchTodoLists();
+          this.todolistService.fetchTodoLists();
+          this.todolistService.fetchSharedTodoLists();
         }
       });
     } else {
       this.snackBar.open('The selected todo list does not exist!', 'Close', {
-        duration: 2000,
-      });
-    }
-  }
-
-  async checkTodo(todouid: string, state: boolean) {
-    const response = await this.httpService.post(
-      `http://localhost:3100/api/todolists/${
-        this.todoLists[this.selectedTodoList].uuid
-      }/todos/${todouid}/change`,
-      {
-        session: this.authService.getSession(),
-        done: state,
-      }
-    );
-    if (response.status == 'success') {
-      this.fetchTodoLists();
-    } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
-    }
-  }
-
-  async deleteTodo(todouid: string) {
-    const response = await this.httpService.post(
-      `http://localhost:3100/api/todolists/${
-        this.todoLists[this.selectedTodoList].uuid
-      }/todos/${todouid}/remove`,
-      {
-        session: this.authService.getSession(),
-      }
-    );
-
-    if (response.status == 'success') {
-      this.fetchTodoLists();
-    } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
-    }
-  }
-
-  async deleteTodoList() {
-    const response = await this.httpService.post(
-      `http://localhost:3100/api/todolists/${
-        this.todoLists[this.selectedTodoList].uuid
-      }/remove`,
-      {
-        session: this.authService.getSession(),
-      }
-    );
-
-    if (response.status == 'success') {
-      this.fetchTodoLists();
-    } else {
-      this.snackBar.open(response.description, 'Close', {
         duration: 2000,
       });
     }
@@ -174,10 +95,69 @@ export class TodoListsComponent {
       token: '',
       expires: new Date(Date.now()),
     });
-    this.router.navigate(['/login']);
+    document.location.reload();
+  }
+
+  showShareTodoListDialog(todoList: TodoListProps) {
+    this.dialog.open(ConfigureShareTodolistDialogComponent, {
+      exitAnimationDuration: 500,
+      enterAnimationDuration: 500,
+      data: {
+        todoList,
+      },
+    });
   }
 
   showAccountSettings() {
-    this.router.navigate(["/account"]);
+    this.router.navigate(['/account']);
+  }
+
+  isDeadlineReached(deadline: string): boolean {
+    if (deadline && deadline != '') {
+      if (new Date(deadline).getTime() < new Date().getTime()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  handleTodoPageEvent(e: PageEvent) {
+    this.todolistService.todoPageIndex = e.pageIndex;
+    this.todolistService.fetchTodoLists();
+    this.todolistService.fetchSharedTodoLists();
+  }
+
+  handleTodoListPageEvent(e: PageEvent) {
+    this.todolistService.todoListPageIndex = e.pageIndex;
+    this.todolistService.fetchTodoLists();
+    this.todolistService.fetchSharedTodoLists();
+  }
+
+  handleSharedTodoListPageEvent(e: PageEvent) {
+    this.todolistService.sharedTodoPageIndex = e.pageIndex;
+    this.todolistService.fetchSharedTodoLists();
+  }
+
+  handleSharedTodoPageEvent(e: PageEvent) {
+    this.todolistService.sharedTodoPageIndex = e.pageIndex;
+    this.todolistService.fetchSharedTodoLists();
+  }
+
+  onDeleteTodo() {
+    const listuid =
+      this.todolistService.todoListMode == 'owned'
+        ? this.todolistService.todoLists[this.todolistService.selectedTodoList]
+            .uuid
+        : this.todolistService.sharedTodoLists[
+            this.todolistService.sharedSelectedTodoList
+          ].uuid;
+    const todouid =
+      this.todolistService.todoListMode == 'owned'
+        ? this.todolistService.todoLists[this.todolistService.selectedTodoList]
+            .todos[this.todolistService.selectedTodo].uuid
+        : this.todolistService.sharedTodoLists[
+            this.todolistService.sharedSelectedTodoList
+          ].todos[this.todolistService.sharedSelectedTodo].uuid;
+    this.todolistService.deleteTodo(listuid, todouid);
   }
 }

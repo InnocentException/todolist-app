@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Document, Model, StringSchemaDefinition, Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthService } from '../auth/auth.service';
 import { MailService } from '../mail/mail.service';
 import {
-  PasswordResetTokenNotValid,
+  PasswordResetTokenNotValidError,
   UserNotFoundError,
 } from 'src/utils/errors';
 import { Session } from 'src/schemas/session.schema';
@@ -14,6 +14,9 @@ import { UserProps } from 'src/utils/types';
 @Injectable()
 export class UserService {
   private resetPasswordTokens: Map<String, { useruid: string; expires: Date }>;
+
+  private logger = new Logger();
+
   constructor(
     @InjectModel('User')
     private userModel: Model<UserProps>,
@@ -32,7 +35,12 @@ export class UserService {
     email: string,
     phonenumber: string,
     password: string,
-  ) {
+  ): Promise<
+    Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      }
+  > {
     let uuid = uuidv4();
     while (await this.getUserByUUID(uuid)) uuid = uuidv4();
 
@@ -54,6 +62,7 @@ export class UserService {
       },
     });
     newUser.save();
+    return newUser;
   }
 
   removeUser(uuid: string) {}
@@ -93,11 +102,11 @@ export class UserService {
         this.resetPasswordTokens.delete(token);
       } else {
         this.resetPasswordTokens.delete(token);
-        throw new PasswordResetTokenNotValid('This Token is not valid!');
+        throw new PasswordResetTokenNotValidError('This Token is not valid!');
       }
       this.resetPasswordTokens.delete(token);
     } else {
-      throw new PasswordResetTokenNotValid('This Token is not valid!');
+      throw new PasswordResetTokenNotValidError('This Token is not valid!');
     }
   }
 
@@ -190,9 +199,6 @@ export class UserService {
     enabled: boolean,
     mail: string,
   ) {
-    console.log(
-      `Changing Mail MFA for user '${user.uuid}' to ${enabled ? 'enabled' : 'disabled'} with email '${mail}' ...`,
-    );
     user.mfa.mail.enabled = enabled;
     user.mfa.mail.mailAddress = mail;
     user.save();

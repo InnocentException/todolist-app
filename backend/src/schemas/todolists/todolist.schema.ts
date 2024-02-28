@@ -21,6 +21,12 @@ export function createTodoListSchema(): Schema<TodoListProps> {
       type: String,
       required: true,
     },
+    deadline: {
+      type: String,
+    },
+    sharedUsers: {
+      type: [String],
+    },
     todos: [createTodoSchema()],
   });
 }

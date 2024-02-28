@@ -35,6 +35,8 @@ export interface TodoListProps {
   title: string;
   description: string;
   todos: TodoProps[];
+  deadline: string;
+  sharedUsers: string[];
 }
 
 export interface Session {

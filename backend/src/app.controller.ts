@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Ip, Logger } from '@nestjs/common';
 import { AuthService } from './services/auth/auth.service';
 import { UserService } from './services/user/user.service';
 import { TodoListsService } from './services/todo-lists/todo-lists.service';
@@ -7,12 +7,15 @@ import { model } from 'mongoose';
 
 @Controller()
 export class AppController {
+  private logger: Logger;
   constructor(
     private authService: AuthService,
     private userService: UserService,
     private todoListsService: TodoListsService,
     private mfaService: MfaService,
-  ) {}
+  ) {
+    this.logger = new Logger(AppController.name);
+  }
 
   createAPIResponse(data: any) {
     return JSON.stringify({
@@ -36,19 +39,13 @@ export class AppController {
   }
 
   @Post('api/login')
-  async login(@Body() body: any): Promise<string> {
+  async login(@Body() body: any, @Ip() ip: string): Promise<string> {
     const username = body.username;
     const password = body.password;
-
-    console.log(
-      `Someone tries to log into a user with the username '${username}'`,
-    );
 
     const user = await this.userService.getUserByUsername(username);
     if (user) {
       if (user.password == this.authService.hashPassword(password)) {
-        const session = this.authService.createSession(user);
-
         if (user.mfa.mail.enabled && !user.mfa.app.enabled) {
           const code = this.mfaService.generateMFACode(user);
           this.mfaService.sendMFACode(user, code);
@@ -68,14 +65,22 @@ export class AppController {
             useruid: user.uuid,
           });
         }
-        console.log('Login success!');
+
+        const session = this.authService.createSession(user);
+        this.logger.log(`${ip} logged in successful!`);
         return this.createAPIResponse({
           session,
         });
       } else {
+        this.logger.log(
+          `${ip} The login request was blocked: the password is not correct!`,
+        );
         return this.createAPIError('The password is not correct!');
       }
     } else {
+      this.logger.log(
+        `${ip} The login request was blocked: the user does not exist!`,
+      );
       return this.createAPIError('This user does not exist!');
     }
   }
@@ -90,6 +95,7 @@ export class AppController {
     const password = body.password;
     const repeatPassword = body.repeatPassword;
 
+    let errormsg = '';
     if (
       firstname != '' &&
       lastname != '' &&
@@ -100,24 +106,31 @@ export class AppController {
     ) {
       if (password == repeatPassword) {
         if (!(await this.userService.getUserByUsername(username))) {
-          this.userService.addUser(
-            firstname,
-            lastname,
-            username,
-            email,
-            phonenumber,
-            this.authService.hashPassword(password),
-          );
-          return this.createAPIResponse(undefined);
+          try {
+            const newUser = await this.userService.addUser(
+              firstname,
+              lastname,
+              username,
+              email,
+              phonenumber,
+              this.authService.hashPassword(password),
+            );
+            this.logger.log(`Created new account with uuid '${newUser.uuid}'`);
+            return this.createAPIResponse({});
+          } catch (err) {
+            errormsg = err.message;
+          }
         } else {
-          return this.createAPIError('This User does already exist!');
+          errormsg = 'This user does already exist!';
         }
       } else {
-        return this.createAPIError('The Passwords are not the same!');
+        errormsg = 'The Passwords are not the same!';
       }
     } else {
-      return this.createAPIError('You have to fill out all Fields!');
+      errormsg = 'You have to fill out all Fields!';
     }
+    this.logger.error(`Unable to create new user: ${errormsg}`);
+    return this.createAPIError(errormsg);
   }
 
   @Post('api/reset_password')
@@ -126,16 +139,18 @@ export class AppController {
     const username = body.username;
     const password = body.password;
     const repeatPassword = body.repeatPassword;
+
+    let errormsg = "";
     if (token) {
       if (repeatPassword == password) {
         try {
           await this.userService.resetPassword(token, password);
           return this.createAPIResponse({});
         } catch (err) {
-          return this.createAPIError(err.message);
+          errormsg = err.message;
         }
       } else {
-        return this.createAPIError('The passwords are not the same!');
+        errormsg = 'The passwords are not the same!';
       }
     } else {
       if (username) {
@@ -166,6 +181,24 @@ export class AppController {
     }
   }
 
+  @Get('api/account/:useruid')
+  async getUserByUUID(
+    @Body() body: any,
+    @Param('useruid') useruid: string,
+  ): Promise<string> {
+    const session = body.session;
+
+    const user = await this.userService.getUserByUUID(useruid);
+    if (user) {
+      return this.createAPIResponse({
+        uuid: user.uuid,
+        username: user.username,
+      });
+    } else {
+      return this.createAPIError('This session is not valid!');
+    }
+  }
+
   @Post('api/account/change')
   async changeUser(@Body() body: any): Promise<string> {
     const firstname = body.firstname;
@@ -186,12 +219,15 @@ export class AppController {
           email,
           phonenumber,
         );
+        this.logger.log(`Changed user with uuid ${user.uuid}`);
         return this.createAPIResponse(undefined);
       } catch (err) {
         return this.createAPIError(err.message);
       }
     } else {
-      return this.createAPIError('This session is not valid!');
+      const errormsg = 'This session is not valid!';
+      this.logger.error(`Unable to change user with uuid '${user.uuid}'`);
+      return this.createAPIError(errormsg);
     }
   }
 
@@ -199,6 +235,7 @@ export class AppController {
   async MailMFA(
     @Body() body: any,
     @Param('mode') mode: string,
+    @Ip() ip: string,
   ): Promise<string> {
     if (mode == 'send') {
       const useruid = body.useruid;
@@ -222,7 +259,7 @@ export class AppController {
               enabled,
               emailAddress ? emailAddress : user.email,
             );
-            return this.createAPIResponse(undefined);
+            return this.createAPIResponse({});
           } catch (err) {
             return this.createAPIError(err.message);
           }
@@ -236,6 +273,7 @@ export class AppController {
       const code = body.code;
       try {
         const user = this.mfaService.getUserFromCode(code);
+        this.logger.log(`${ip} logged in successful!`);
         return this.createAPIResponse({
           session: this.authService.createSession(user),
         });
@@ -249,6 +287,7 @@ export class AppController {
   async AppMFA(
     @Body() body: any,
     @Param('mode') mode: string,
+    @Ip() ip: string,
   ): Promise<string> {
     if (mode == 'setup') {
       const enabled = body.enabled;
@@ -282,6 +321,8 @@ export class AppController {
                 if (session) {
                   return this.createAPIResponse({});
                 } else {
+                  this.logger.log(`${ip} logged in successful!`);
+
                   return this.createAPIResponse({
                     session: this.authService.createSession(user),
                   });
@@ -336,140 +377,225 @@ export class AppController {
     }
   }
 
-  @Post('api/todolists')
-  async getTodos(@Body() body: any): Promise<string> {
+  @Post('api/todolists/:type')
+  async getTodoListsByType(
+    @Body() body: any,
+    @Param('type') type: string,
+  ): Promise<string> {
     const session = body.session;
     const user = await this.userService.getUserBySessionToken(session);
     if (user) {
-      return this.createAPIResponse({
-        todoLists: await this.todoListsService.getTodoListsByUser(user.uuid),
-      });
+      if (type == 'owned') {
+        return this.createAPIResponse({
+          todoLists: await this.todoListsService.getTodoListsByUser(user.uuid),
+        });
+      } else if (type == 'shared') {
+        return this.createAPIResponse({
+          todoLists: await this.todoListsService.getSharedTodolistsByUseruid(
+            user.uuid,
+          ),
+        });
+      } else if (type == 'add') {
+        const title = body.title;
+        const description = body.description;
+        const deadline = body.deadline;
+
+        if (title != '' && description != '') {
+          if (user) {
+            await this.todoListsService.addTodoList(
+              user.toObject(),
+              title,
+              description,
+              deadline,
+            );
+            return this.createAPIResponse({});
+          } else {
+            return this.createAPIError('This session is not valid!');
+          }
+        } else {
+          return this.createAPIError('Please fill out all Fields!');
+        }
+      } else {
+        return this.createAPIError('Wrong request');
+      }
     }
     return this.createAPIError('This session is not valid!');
   }
 
-  @Post('api/todolists/add')
-  async addTodoList(@Body() body: any): Promise<string> {
-    const session = body.session;
-    const title = body.title;
-    const description = body.description;
-
-    const user = await this.userService.getUserBySessionToken(session);
-    if (title != '' && description != '') {
-      if (user) {
-        await this.todoListsService.addTodoList({
-          uuid: '',
-          description,
-          title,
-          todos: [],
-          useruid: user.uuid,
-        });
-        return this.createAPIResponse({});
-      } else {
-        return this.createAPIError('This session is not valid!');
-      }
-    } else {
-      return this.createAPIError('Please fill out all Fields!');
-    }
-  }
-
-  @Post('api/todolists/:uuid/todos/add')
-  async addTodo(
+  @Post('api/todolist/:listuid/:action?')
+  async handleTodoLists(
     @Body() body: any,
-    @Param('uuid') uuid: string,
+    @Param('listuid') listuid: string,
+    @Param('action') action?: string,
   ): Promise<string> {
     const session = body.session;
-    const text = body.text;
 
-    const user = await this.userService.getUserBySessionToken(session);
-    if (text != '') {
-      if (user) {
-        const result = await this.todoListsService.addTodoToList(uuid, text);
-        if (result) {
-          return this.createAPIResponse({});
+    let errormsg = '';
+    if (action == 'share') {
+      const sharedUsers = body.sharedUsers;
+      try {
+        const user = await this.userService.getUserBySessionToken(session);
+        if (user) {
+          if (this.todoListsService.userOwnsTodoList(listuid, user.uuid)) {
+            const todoList =
+              await this.todoListsService.getTodoListByUUID(listuid);
+            todoList.sharedUsers = [];
+            for (const username of sharedUsers) {
+              const sharedUser =
+                await this.userService.getUserByUsername(username);
+              if (username != user.username) {
+                if (sharedUser) {
+                  todoList.sharedUsers.push(sharedUser.uuid);
+                } else {
+                  errormsg = `The user with the username '${username}' does not exist`;
+                  break;
+                }
+              } else {
+                errormsg = 'You cannot share your todolist with yourself';
+                break;
+              }
+            }
+            if (errormsg == '') {
+              todoList.save();
+              this.logger.log(
+                `Shared todolist with uuid '${listuid}' with users ${JSON.stringify(sharedUsers)}`,
+              );
+              return this.createAPIResponse({});
+            }
+          } else {
+            errormsg = "You do not have the permission to change the todo of this todolist";
+          }
         } else {
-          return this.createAPIError('This Todo List does not exist anymore!');
+          errormsg = 'This session is invalid';
+        }
+      } catch (err) {
+        errormsg = err.message;
+      }
+      this.logger.error(
+        `Unable to share todolist with uuid '${listuid}': ${errormsg}`,
+      );
+      return this.createAPIError(errormsg);
+    } else if (action == 'remove') {
+      let errormsg = '';
+      const user = await this.userService.getUserBySessionToken(session);
+      if (user) {
+        if (
+          this.todoListsService.userOwnsTodoList(listuid, user.uuid) ||
+          this.todoListsService.userCanAccessTodoList(listuid, user.uuid)
+        ) {
+          try {
+            await this.todoListsService.removeTodoList(listuid);
+            this.logger.log(`Removed todolist with uuid ${listuid}`);
+            return this.createAPIResponse({});
+          } catch (err) {
+            errormsg = err.message;
+          }
+        } else {
+          return this.createAPIResponse(
+            'You do not have the permission to change the todo of this todolist',
+          );
         }
       } else {
-        return this.createAPIError('This session is not valid!');
+        errormsg = 'This session is not valid';
       }
-    } else {
-      return this.createAPIError('Please fill out all Fields!');
+      this.logger.error(
+        `Unable to remove todolist with uuid '${listuid}': ${errormsg}`,
+      );
+      return this.createAPIError(errormsg);
     }
   }
 
-  @Post('api/todolists/:listuid/remove')
-  async removeTodoList(
-    @Body() body: any,
-    @Param('listuid') listuid: string,
-  ): Promise<string> {
-    const session = body.session;
-    const text = body.text;
-
-    const user = await this.userService.getUserBySessionToken(session);
-    if (text != '') {
-      if (user) {
-        const result = await this.todoListsService.removeTodoList(listuid);
-        return this.createAPIResponse({});
-      } else {
-        return this.createAPIError('This session is not valid!');
-      }
-    } else {
-      return this.createAPIError('Please fill out all Fields!');
-    }
-  }
-
-  @Post('api/todolists/:listuid/todos/:todouid/change')
-  async changeTodo(
-    @Body() body: any,
-    @Param('listuid') listuid: string,
-    @Param('todouid') todouid: string,
-  ): Promise<string> {
-    const session = body.session;
-    const text = body.text;
-    const done = body.done;
-
-    const user = await this.userService.getUserBySessionToken(session);
-    if (text != '') {
-      if (user) {
-        try {
-          this.todoListsService.changeTodo(listuid, todouid, text, done);
-          return this.createAPIResponse({});
-        } catch (err) {
-          return this.createAPIError(err.message);
-        }
-      } else {
-        return this.createAPIError('This session is not valid!');
-      }
-    } else {
-      return this.createAPIError('Please fill out all Fields!');
-    }
-  }
-
-  @Post('api/todolists/:listuid/todos/:todouid/remove')
-  async removeTodo(
+  // Remove and Change a Todo from a Todolist
+  @Post('api/todolist/:listuid/todos/:todouid/:action?')
+  async handleTodo(
     @Body() body: any,
     @Param('listuid') listuid: string,
     @Param('todouid') todouid: string,
+    @Param('action') action?: string,
   ): Promise<string> {
     const session = body.session;
-    const text = body.text;
-    const done = body.done;
 
-    const user = await this.userService.getUserBySessionToken(session);
-    if (text != '') {
+    if (todouid == 'add') {
+      const text = body.text;
+
+      const user = await this.userService.getUserBySessionToken(session);
+      if (text != '') {
+        if (user) {
+          if (
+            this.todoListsService.userOwnsTodoList(listuid, user.uuid) ||
+            this.todoListsService.userCanAccessTodoList(listuid, user.uuid)
+          ) {
+            try {
+              await this.todoListsService.addTodoToList(listuid, text);
+              return this.createAPIResponse({});
+            } catch (err) {
+              return this.createAPIError(err.message);
+            }
+          } else {
+            return this.createAPIResponse(
+              'You do not have the permission to change the todo of this todolist',
+            );
+          }
+        } else {
+          return this.createAPIError('This session is not valid!');
+        }
+      } else {
+        return this.createAPIError('Please fill out all Fields!');
+      }
+    } else if (action == 'change') {
+      // Change the Todo
+      const text = body.text; // New Text of the Todo
+      const done = body.done; // New State of the Todo
+
+      const user = await this.userService.getUserBySessionToken(session);
+      if (text != '') {
+        // If Text isn't empty
+        if (user) {
+          // If the user does exist
+          if (
+            this.todoListsService.userOwnsTodoList(listuid, user.uuid) ||
+            this.todoListsService.userCanAccessTodoList(listuid, user.uuid)
+          ) {
+            try {
+              this.todoListsService.changeTodo(listuid, todouid, text, done);
+              return this.createAPIResponse({});
+            } catch (err) {
+              return this.createAPIError(err.message);
+            }
+          } else {
+            return this.createAPIResponse(
+              'You do not have the permission to change the todo of this todolist',
+            );
+          }
+        } else {
+          return this.createAPIError('This session is not valid');
+        }
+      } else {
+        return this.createAPIError('Please fill out all Fields');
+      }
+    } else if (action == 'remove') {
+      // Removing Todo
+      const user = await this.userService.getUserBySessionToken(session);
       if (user) {
-        try {
-          this.todoListsService.removeTodo(listuid, todouid);
-          return this.createAPIResponse({});
-        } catch (err) {
-          return this.createAPIError(err.message);
+        if (
+          this.todoListsService.userOwnsTodoList(listuid, user.uuid) ||
+          this.todoListsService.userCanAccessTodoList(listuid, user.uuid)
+        ) {
+          try {
+            this.todoListsService.removeTodo(listuid, todouid);
+            return this.createAPIResponse({});
+          } catch (err) {
+            return this.createAPIError(err.message);
+          }
+        } else {
+          return this.createAPIResponse(
+            'You do not have the permission to change the todo of this todolist',
+          );
         }
       } else {
         return this.createAPIError('This session is not valid!');
       }
-    } else {
-      return this.createAPIError('Please fill out all Fields!');
     }
+    return this.createAPIError('Wrong Request');
   }
 }

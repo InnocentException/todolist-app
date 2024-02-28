@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>Share</h2>
+<mat-dialog-content class="root-container">
+  <mat-card class="show-shared-users-card">
+    @if(sharedUsers.length > 0) {
+    <mat-list>
+      @for(sharedUser of sharedUsers; track sharedUser) {
+      <mat-list-item class="show-shared-users-list-item">
+        <div class="show-shared-users-list-item-container">
+          <div class="shared-user-delete-icon-container" (click)="removeSharedUser(sharedUser)">
+            <mat-icon >delete</mat-icon>
+          </div>
+          <p>{{ sharedUser }}</p>
+        </div>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+      }
+    </mat-list>
+    } @else {
+    <h2>You didn't share this todolist with anyone yet!</h2>
+    }
+  </mat-card>
+
+  <form class="add-shared-user-form" [formGroup]="addSharedUserForm">
+    <mat-form-field>
+      <input
+        matInput
+        type="text"
+        placeholder="Username"
+        formControlName="username"
+      />
+    </mat-form-field>
+    <button mat-flat-button color="primary" (click)="addNewSharedUser()">
+      Add
+    </button>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-flat-button mat-dialog-close color="primary" cdkFocusInitial>
+    Close
+  </button>
+  <button mat-flat-button color="primary" (click)="applySharedUsers()">
+    Submit
+  </button>
+</mat-dialog-actions>

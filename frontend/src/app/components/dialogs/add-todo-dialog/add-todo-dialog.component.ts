@@ -19,6 +19,7 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { AddTodoListDialogComponent } from '../add-todo-list-dialog/add-todo-list-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TodoListProps } from '../../../utils/types';
+import { TodolistService } from '../../../services/todolist/todolist.service';
 
 @Component({
   selector: 'app-add-todo-dialog',
@@ -37,9 +38,9 @@ import { TodoListProps } from '../../../utils/types';
 })
 export class AddTodoDialogComponent {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { selectedTodoList: TodoListProps },
     private httpService: HttpService,
     private authService: AuthService,
+    private todoListService: TodolistService,
     public dialogRef: MatDialogRef<AddTodoListDialogComponent>,
     private snackBar: MatSnackBar
   ) {}
@@ -54,7 +55,15 @@ export class AddTodoDialogComponent {
 
   async submitTodo() {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolists/${this.data.selectedTodoList.uuid}/todos/add`,
+      `http://localhost:3100/api/todolist/${
+        this.todoListService.todoListMode == 'owned'
+          ? this.todoListService.todoLists[
+              this.todoListService.selectedTodoList
+            ].uuid
+          : this.todoListService.sharedTodoLists[
+              this.todoListService.sharedSelectedTodoList
+            ].uuid
+      }/todos/add`,
       {
         session: this.authService.getSession(),
         text: this.todoListTextInput?.value,

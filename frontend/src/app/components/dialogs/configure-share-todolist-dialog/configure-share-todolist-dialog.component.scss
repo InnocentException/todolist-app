@@ -1,0 +1,26 @@
+.root-container {
+    width: 30vw;
+    height: 70vh;
+}
+
+.show-shared-users-card {
+    padding: 10px;
+}
+
+.add-shared-users-card {
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.add-shared-user-form {
+    margin-top: 10px;
+}
+
+.show-shared-users-list-item-container {
+    display: flex;
+    align-items: center;
+}
+
+.shared-user-delete-icon-container {
+    cursor: pointer;
+}

@@ -1,10 +1,3 @@
-export interface SessionProps {
-  useruid: string;
-  token: string;
-  expires: Date;
-}
-
-
 export interface TodoProps {
   uuid: string;
   text: string;
@@ -16,6 +9,8 @@ export interface TodoListProps {
   useruid: string;
   title: string;
   description: string;
+  deadline: string;
+  sharedUsers: string[];
   todos: TodoProps[];
 }
 
@@ -34,6 +29,14 @@ export interface AppMFAProps {
 export interface MFAProps {
   mail: MailMFAProps;
   app: AppMFAProps;
+}
+
+
+
+export interface SessionProps {
+  useruid: string;
+  token: string;
+  expires: Date;
 }
 
 export interface UserProps {
