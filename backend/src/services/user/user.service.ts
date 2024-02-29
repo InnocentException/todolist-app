@@ -64,6 +64,7 @@ export class UserService {
           secret: '',
         },
       },
+      profile_picture: "",
     });
     newUser.save();
     return newUser;

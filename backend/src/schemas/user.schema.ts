@@ -35,7 +35,6 @@ export function createUserSchema(): Schema<UserProps> {
     },
     profile_picture: {
       type: String,
-      required: true,
     },
     mfa: {
       type: createMFASchema(),

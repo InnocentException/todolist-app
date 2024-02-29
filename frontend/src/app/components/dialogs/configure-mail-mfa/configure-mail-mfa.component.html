@@ -1,0 +1,6 @@
+<mat-dialog-content>
+  <from [formGroup]="codeForm">
+    <mat-form-field><input matInput placeholder="Code" formControlName="code"/></mat-form-field
+  ></from>
+  <button mat-flat-button (click)="submitCode()" color="primary">Submit</button>
+</mat-dialog-content>

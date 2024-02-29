@@ -163,24 +163,24 @@
             <button
               *ngIf="!account?.mfa?.mail?.enabled"
               mat-flat-button
+              color="primary"
               (click)="toggleMailMFA()"
             >
               Enable
             </button>
             <button
+              style="margin-right: 10px"
               *ngIf="account?.mfa?.mail?.enabled"
               mat-flat-button
+              color="warn"
               (click)="toggleMailMFA()"
             >
               Disable
             </button>
             <form [formGroup]="emailMFAForm">
-              <input
-                matInput
-                placeholder="Email"
-                required
-                formControlName="email"
-              />
+              <mat-form-field class="mfa-email-input">
+                <input matInput placeholder="Email" formControlName="email" />
+              </mat-form-field>
             </form>
           </div>
         </mat-expansion-panel>
@@ -198,6 +198,7 @@
             <button
               *ngIf="!account?.mfa?.app?.enabled"
               mat-flat-button
+              color="primary"
               (click)="toggleAppMFA()"
             >
               Enable
@@ -205,6 +206,7 @@
             <button
               *ngIf="account?.mfa?.app?.enabled"
               mat-flat-button
+              color="warn"
               (click)="toggleAppMFA()"
             >
               Disable

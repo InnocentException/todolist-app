@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { QRCodeModule } from 'angularx-qrcode';
 import { HttpService } from '../../../services/http/http.service';
@@ -41,7 +41,7 @@ export class ConfigurateAppMfaComponent {
     private httpService: HttpService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private dialogRef: DialogRef
+    private dialogRef: MatDialogRef<ConfigurateAppMfaComponent>
     ){}
 
   appForm = new FormGroup({
@@ -56,7 +56,7 @@ export class ConfigurateAppMfaComponent {
     });
 
     if (response.status == 'success') {
-      this.dialogRef.close();
+      this.dialogRef.close(true);
     } else {
       this.snackBar.open(response.description, 'Close', {
         duration: 2000,

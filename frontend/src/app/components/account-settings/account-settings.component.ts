@@ -24,6 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfigurateAppMfaComponent } from '../dialogs/configurate-app-mfa/configurate-app-mfa.component';
 import { ConfigureProfilePictureDialogComponent } from '../dialogs/configure-profile-picture-dialog/configure-profile-picture-dialog.component';
 import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
+import { ConfigureMailMfaComponent } from '../dialogs/configure-mail-mfa/configure-mail-mfa.component';
 
 @Component({
   selector: 'app-account-settings',
@@ -113,24 +114,36 @@ export class AccountSettingsComponent {
   }
 
   async submitAccountInfoChanges() {
-    const response = await this.httpService.post(
-      'http://localhost:3100/api/account/change',
-      {
-        session: this.authService.getSession(),
-        firstname: this.firstnameInput?.value,
-        lastname: this.lastnameInput?.value,
-        username: this.usernameInput?.value,
-        email: this.emailInput?.value,
-        phonenumber: this.phonenumberInput?.value,
-      }
-    );
+    if (
+      this.firstnameInput?.valid &&
+      this.lastnameInput?.valid &&
+      this.usernameInput?.valid &&
+      this.emailInput?.valid &&
+      this.phonenumberInput?.valid
+    ) {
+      const response = await this.httpService.post(
+        'http://localhost:3100/api/account/change',
+        {
+          session: this.authService.getSession(),
+          firstname: this.firstnameInput?.value,
+          lastname: this.lastnameInput?.value,
+          username: this.usernameInput?.value,
+          email: this.emailInput?.value,
+          phonenumber: this.phonenumberInput?.value,
+        }
+      );
 
-    if (response.status == 'success') {
-      this.fetchAccountInfo();
+      if (response.status == 'success') {
+        this.fetchAccountInfo();
+      } else {
+        this.snackBar.open(response.description, 'Close', {
+          duration: 2000,
+        });
+      }
     } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
+      this.snackBar.open(
+        'The input is not vaild. Please check if you filled out all fields and if you wrote the email correct!'
+      );
     }
   }
 
@@ -155,22 +168,32 @@ export class AccountSettingsComponent {
   }
 
   async submitPasswordChange() {
-    const response = await this.httpService.post(
-      'http://localhost:3100/api/account/change_password',
-      {
-        session: this.authService.getSession(),
-        password: this.passwordInput?.value,
-        newPassword: this.newPasswordInput?.value,
-        repeatNewPassword: this.repeatNewPasswordInput?.value,
-      }
-    );
+    if (
+      this.passwordInput?.valid &&
+      this.newPasswordInput?.valid &&
+      this.repeatNewPasswordInput?.valid
+    ) {
+      const response = await this.httpService.post(
+        'http://localhost:3100/api/account/change_password',
+        {
+          session: this.authService.getSession(),
+          password: this.passwordInput?.value,
+          newPassword: this.newPasswordInput?.value,
+          repeatNewPassword: this.repeatNewPasswordInput?.value,
+        }
+      );
 
-    if (response.status == 'success') {
-      this.fetchAccountInfo();
+      if (response.status == 'success') {
+        this.fetchAccountInfo();
+      } else {
+        this.snackBar.open(response.description, 'Close', {
+          duration: 2000,
+        });
+      }
     } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
+      this.snackBar.open(
+        'The input is not valid. Please check if you filled out all fields and if the new password is more than 4 character long!'
+      );
     }
   }
 
@@ -189,6 +212,34 @@ export class AccountSettingsComponent {
     );
 
     if (response.status == 'success') {
+      if (!this.account?.mfa.mail.enabled) {
+        const dialogRef = this.dialog.open(ConfigureMailMfaComponent, {
+          exitAnimationDuration: 500,
+          enterAnimationDuration: 500,
+          data: { useruid: this.account?.uuid },
+        });
+        dialogRef.afterClosed().subscribe(async (done) => {
+          if (done) {
+            this.fetchAccountInfo();
+          } else {
+            const response = await this.httpService.post(
+              'http://localhost:3100/api/account/mfa/mail/setup',
+              {
+                session: this.authService.getSession(),
+                enabled: false,
+                mailAddress: this.emailMFAForm.get('email')?.value,
+              }
+            );
+            if (response.status == 'success') {
+              this.fetchAccountInfo();
+            } else {
+              this.snackBar.open(response.description, 'Close', {
+                duration: 2000,
+              });
+            }
+          }
+        });
+      }
       this.fetchAccountInfo();
     } else {
       this.snackBar.open(response.description, 'Close', {
@@ -216,8 +267,26 @@ export class AccountSettingsComponent {
           data: { authUrl: this.authUrl, useruid: this.account?.uuid },
         });
 
-        dialogRef.afterClosed().subscribe(() => {
-          this.fetchAccountInfo();
+        dialogRef.afterClosed().subscribe(async (done) => {
+          if (done) {
+            this.fetchAccountInfo();
+          } else {
+            const response = await this.httpService.post(
+              'http://localhost:3100/api/account/mfa/app/setup',
+              {
+                session: this.authService.getSession(),
+                enabled: false,
+              }
+            );
+
+            if (response.status == 'success') {
+              this.fetchAccountInfo();
+            } else {
+              this.snackBar.open(response.description, 'Close', {
+                duration: 2000,
+              });
+            }
+          }
         });
       } else {
         this.snackBar.open(response.description, 'Close', {

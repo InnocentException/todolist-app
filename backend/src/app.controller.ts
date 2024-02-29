@@ -256,10 +256,17 @@ export class AppController {
       const useruid = body.useruid;
       const user = await this.userService.getUserByUUID(useruid);
 
-      this.mfaService.sendMFACode(
-        user.toObject(),
-        this.mfaService.generateMFACode(user.toObject()),
-      );
+      if (user) {
+        this.mfaService.sendMFACode(
+          user.toObject(),
+          this.mfaService.generateMFACode(user.toObject()),
+        );
+        return this.createAPIResponse({});
+      } else {
+        const errormsg = "This user does not exist!";
+        this.logger.error(`Could not send MFA code via email: ${errormsg}`);
+        return this.createAPIError(errormsg);
+      }
     } else if (mode == 'setup') {
       const session = body.session;
       const emailAddress = body.mailAddress;
