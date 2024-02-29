@@ -9,7 +9,7 @@ import {
   UserNotFoundError,
 } from 'src/utils/errors';
 import { Session } from 'src/schemas/session.schema';
-import { UserProps } from 'src/utils/types';
+import { TodoListProps, UserProps } from 'src/utils/types';
 
 @Injectable()
 export class UserService {
@@ -22,6 +22,8 @@ export class UserService {
     private userModel: Model<UserProps>,
     @InjectModel(Session.name)
     private sessionModel: Model<Session>,
+    @InjectModel('TodoList')
+    private todoListModel: Model<TodoListProps>,
     private authService: AuthService,
     private mailService: MailService,
   ) {
@@ -55,9 +57,11 @@ export class UserService {
       mfa: {
         mail: {
           enabled: false,
+          mailAddress: '',
         },
         app: {
           enabled: false,
+          secret: '',
         },
       },
     });
@@ -65,7 +69,18 @@ export class UserService {
     return newUser;
   }
 
-  removeUser(uuid: string) {}
+  async removeUser(
+    user: Document<unknown, {}, UserProps> &
+      UserProps & {
+        _id: Types.ObjectId;
+      },
+  ) {
+    const foundTodoLists = await this.todoListModel.find({ useruid: user.uuid });
+    for (const todoList of foundTodoLists) {
+      todoList.deleteOne().exec();
+    }
+    user.deleteOne().exec();
+  }
 
   async handleResetPasswordRequest(
     user: Document<unknown, {}, UserProps> &
@@ -95,7 +110,7 @@ export class UserService {
   async resetPassword(token: string, password: string) {
     const data = this.resetPasswordTokens.get(token);
     if (data) {
-      if (data.expires.getTime() > new Date(Date.now()).getTime()) {
+      if (data.expires.getTime() > new Date().getTime()) {
         const user = (await this.userModel.find({ uuid: data.useruid }))[0];
         user.password = this.authService.hashPassword(password);
         user.save();
@@ -120,13 +135,16 @@ export class UserService {
     username: string,
     email: string,
     phonenumber: string,
+    profile_picture: string,
   ) {
     if (user) {
-      if (firstname != '') user.firstname = firstname;
-      if (lastname != '') user.lastname = lastname;
-      if (username != '') user.username = username;
-      if (email != '') user.email = email;
-      if (phonenumber != '') user.phonenumber = phonenumber;
+      if (firstname && firstname != '') user.firstname = firstname;
+      if (lastname && lastname != '') user.lastname = lastname;
+      if (username && username != '') user.username = username;
+      if (email && email != '') user.email = email;
+      if (phonenumber && phonenumber != '') user.phonenumber = phonenumber;
+      if (profile_picture && profile_picture != '')
+        user.profile_picture = profile_picture;
       user.save();
     } else {
       throw new UserNotFoundError('This user could not be found!');

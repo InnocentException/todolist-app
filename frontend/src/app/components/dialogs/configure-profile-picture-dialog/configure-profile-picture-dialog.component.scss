@@ -1,0 +1,23 @@
+.root-container {
+    display: flex;
+    flex-flow: column;
+}
+
+.file-input {
+  width: 350px;
+  max-width: 100%;
+  color: #444;
+  padding: 5px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #555;
+  margin-bottom: 10px;
+}
+
+.img-previev {
+    height: 400px;
+    width: 400px;
+    border-radius: 100%;
+    border: 2px solid black;
+    margin-bottom: 10px;
+}

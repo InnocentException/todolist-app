@@ -22,6 +22,8 @@ import { UserProps } from '../../utils/types';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfigurateAppMfaComponent } from '../dialogs/configurate-app-mfa/configurate-app-mfa.component';
+import { ConfigureProfilePictureDialogComponent } from '../dialogs/configure-profile-picture-dialog/configure-profile-picture-dialog.component';
+import { ConfirmDialogComponent } from '../dialogs/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-account-settings',
@@ -195,7 +197,7 @@ export class AccountSettingsComponent {
     }
   }
 
-  authUrl: string = "";
+  authUrl: string = '';
 
   async toggleAppMFA() {
     const response = await this.httpService.post(
@@ -231,5 +233,38 @@ export class AccountSettingsComponent {
         });
       }
     }
+  }
+
+  openUploadProfilePictureDialog() {
+    const dialogRef = this.dialog.open(ConfigureProfilePictureDialogComponent, {
+      exitAnimationDuration: 500,
+      enterAnimationDuration: 500,
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      this.fetchAccountInfo();
+    });
+  }
+
+  deleteAccount() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      exitAnimationDuration: 500,
+      enterAnimationDuration: 500,
+    });
+
+    dialogRef.afterClosed().subscribe(async (data: any) => {
+      if (data == true) {
+        const response = await this.httpService.post(
+          'http://localhost:3100/api/account/delete',
+          {
+            session: this.authService.getSession(),
+          }
+        );
+
+        if (response.status == 'success') {
+          this.authService.logout();
+        }
+      }
+    });
   }
 }

@@ -140,7 +140,7 @@ export class AppController {
     const password = body.password;
     const repeatPassword = body.repeatPassword;
 
-    let errormsg = "";
+    let errormsg = '';
     if (token) {
       if (repeatPassword == password) {
         try {
@@ -199,36 +199,51 @@ export class AppController {
     }
   }
 
-  @Post('api/account/change')
-  async changeUser(@Body() body: any): Promise<string> {
-    const firstname = body.firstname;
-    const lastname = body.lastname;
-    const username = body.username;
-    const email = body.email;
-    const phonenumber = body.phonenumber;
+  @Post('api/account/:action')
+  async changeUser(
+    @Body() body: any,
+    @Param('action') action: string,
+  ): Promise<string> {
+    let errormsg = '';
     const session = body.session;
-
     const user = await this.userService.getUserBySessionToken(session);
     if (user) {
-      try {
-        await this.userService.changeUser(
-          user,
-          firstname,
-          lastname,
-          username,
-          email,
-          phonenumber,
-        );
-        this.logger.log(`Changed user with uuid ${user.uuid}`);
-        return this.createAPIResponse(undefined);
-      } catch (err) {
-        return this.createAPIError(err.message);
+      if (action == 'change') {
+        const firstname = body.firstname;
+        const lastname = body.lastname;
+        const username = body.username;
+        const email = body.email;
+        const phonenumber = body.phonenumber;
+        const profile_picture = body.profile_picture;
+        try {
+          await this.userService.changeUser(
+            user,
+            firstname,
+            lastname,
+            username,
+            email,
+            phonenumber,
+            profile_picture,
+          );
+          this.logger.log(`Changed user with uuid '${user.uuid}'`);
+          return this.createAPIResponse({});
+        } catch (err) {
+          errormsg = err.message;
+        }
+      } else if (action == 'delete') {
+        try {
+          this.logger.log(`Deleted user with uuid '${user.uuid}'`);
+          await this.userService.removeUser(user);
+          return this.createAPIResponse({});
+        } catch (err) {
+          errormsg = err.message;
+        }
       }
     } else {
-      const errormsg = 'This session is not valid!';
-      this.logger.error(`Unable to change user with uuid '${user.uuid}'`);
-      return this.createAPIError(errormsg);
+      errormsg = 'This session is not valid!';
     }
+    this.logger.error(`Unable to ${action} user with uuid '${user.uuid}'`);
+    return this.createAPIError(errormsg);
   }
 
   @Post('api/account/mfa/mail/:mode')
@@ -463,7 +478,8 @@ export class AppController {
               return this.createAPIResponse({});
             }
           } else {
-            errormsg = "You do not have the permission to change the todo of this todolist";
+            errormsg =
+              'You do not have the permission to change the todo of this todolist';
           }
         } else {
           errormsg = 'This session is invalid';

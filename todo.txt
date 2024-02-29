@@ -1,2 +1,2 @@
 add function to check if eather mfa functions ex: add "test" button so that an email is going to be sent and the user has to enter the code to check if this method works and with the app the same
-add checks for the permission so a user can also remove or add a todo
+repair validation for email and phone number

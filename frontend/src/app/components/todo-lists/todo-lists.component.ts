@@ -90,14 +90,6 @@ export class TodoListsComponent {
     }
   }
 
-  logout() {
-    this.authService.updateSession({
-      token: '',
-      expires: new Date(Date.now()),
-    });
-    document.location.reload();
-  }
-
   showShareTodoListDialog(todoList: TodoListProps) {
     this.dialog.open(ConfigureShareTodolistDialogComponent, {
       exitAnimationDuration: 500,
@@ -159,5 +151,9 @@ export class TodoListsComponent {
             this.todolistService.sharedSelectedTodoList
           ].todos[this.todolistService.sharedSelectedTodo].uuid;
     this.todolistService.deleteTodo(listuid, todouid);
+  }
+
+  onLogout() {
+    this.authService.logout();
   }
 }

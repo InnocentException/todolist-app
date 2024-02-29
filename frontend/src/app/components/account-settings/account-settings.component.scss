@@ -3,7 +3,22 @@
     height: 100%;
 }
 
-.account-info-container {
+.general-tab-container {
+    margin-top: 40px;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.profile-picture-image {
+    height: 400px;
+    width: 400px;
+    border-radius: 100%;
+    border: 2px solid black;
+    cursor: pointer;
+}
+
+.account-info-form {
     margin-top: 40px;
     display: flex;
     flex-flow: column;

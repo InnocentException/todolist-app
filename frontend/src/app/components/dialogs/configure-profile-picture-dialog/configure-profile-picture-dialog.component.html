@@ -1,0 +1,15 @@
+<mat-dialog-content>
+  <div class="root-container">
+    <img class="img-previev" [src]="profile_picture" />
+    <input
+      class="file-input"
+      (change)="handleProfilePicture($event)"
+      type="file"
+      accept="image/*"
+    />
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+    <button mat-flat-button color="primary" (click)="submitProfilePicture()">Submit</button>
+</mat-dialog-actions>

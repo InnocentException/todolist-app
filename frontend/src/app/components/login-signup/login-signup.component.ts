@@ -133,25 +133,37 @@ export class LoginSignupComponent {
   }
 
   async submitRegister() {
-    const response = await this.httpService.post(
-      'http://localhost:3100/api/register',
-      {
-        firstname: this.signupFirstNameInput?.value,
-        lastname: this.signupLastNameInput?.value,
-        username: this.signupUsernameInput?.value,
-        email: this.signupEmailInput?.value,
-        phonenumber: this.signupPhonenumberInput?.value,
-        password: this.signupPasswordInput?.value,
-        repeatPassword: this.signupRepeatPasswordInput?.value,
-      }
-    );
+    if (
+      this.signupFirstNameInput?.valid &&
+      this.signupLastNameInput?.valid &&
+      this.signupUsernameInput?.valid &&
+      this.signupEmailInput?.valid &&
+      this.signupPhonenumberInput?.valid &&
+      this.signupPasswordInput?.valid &&
+      this.signupRepeatPasswordInput?.valid
+    ) {
+      const response = await this.httpService.post(
+        'http://localhost:3100/api/register',
+        {
+          firstname: this.signupFirstNameInput?.value,
+          lastname: this.signupLastNameInput?.value,
+          username: this.signupUsernameInput?.value,
+          email: this.signupEmailInput?.value,
+          phonenumber: this.signupPhonenumberInput?.value,
+          password: this.signupPasswordInput?.value,
+          repeatPassword: this.signupRepeatPasswordInput?.value,
+        }
+      );
 
-    if (response.status == 'success') {
-      this.router.navigate(['/todos']);
+      if (response.status == 'success') {
+        this.router.navigate(['/todos']);
+      } else {
+        this.snackBar.open(response.description, 'Close', {
+          duration: 2000,
+        });
+      }
     } else {
-      this.snackBar.open(response.description, 'Close', {
-        duration: 2000,
-      });
+      this.snackBar.open("The Data you entered is not valid. Please check if you filled out all Fileds and if you wrote the email in the correct form!")
     }
   }
 }

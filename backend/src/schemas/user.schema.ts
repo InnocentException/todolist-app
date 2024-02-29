@@ -33,6 +33,10 @@ export function createUserSchema(): Schema<UserProps> {
       type: String,
       required: true,
     },
+    profile_picture: {
+      type: String,
+      required: true,
+    },
     mfa: {
       type: createMFASchema(),
       required: true,

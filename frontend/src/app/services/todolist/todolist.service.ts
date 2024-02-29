@@ -28,7 +28,6 @@ export class TodolistService {
     private authService: AuthService,
     private snackBar: MatSnackBar
   ) {
-    this.fetchSharedTodoLists();
   }
 
   updateTodoLists() {

@@ -20,6 +20,7 @@ export interface UserProps {
   username: string;
   email: string;
   phonenumber: string;
+  profile_picture: string;
   mfa: MFAProps;
 }
 

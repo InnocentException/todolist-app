@@ -47,5 +47,6 @@ export interface UserProps {
   email: string;
   phonenumber: string;
   password: string;
+  profile_picture: string;
   mfa: MFAProps;
 }

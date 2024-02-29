@@ -59,7 +59,7 @@ export class AuthService {
       const sessions = await this.sessionModel.find({});
       for (const session of sessions) {
         if (
-          new Date(session.expires).getTime() < new Date(Date.now()).getTime()
+          new Date(session.expires).getTime() < new Date().getTime()
         ) {
           session.deleteOne().exec();
           cleanedSessions++;

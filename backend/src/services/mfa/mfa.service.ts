@@ -32,7 +32,7 @@ export class MfaService {
     const data = this.mfaCodes.get(code);
     if (data) {
       this.mfaCodes.delete(code);
-      if (data.expires.getTime() > new Date(Date.now()).getTime()) {
+      if (data.expires.getTime() > new Date().getTime()) {
         return data.user;
       } else {
         throw new MailMFACodeNotValidError('This code is not valid!');

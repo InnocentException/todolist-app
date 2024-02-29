@@ -7,9 +7,11 @@ import { Session } from '../../utils/types';
 })
 export class AuthService {
   private session: string;
-  
+
   constructor(private cookieService: CookieService) {
-    this.session = cookieService.get("session") ? cookieService.get("session") : "";
+    this.session = cookieService.get('session')
+      ? cookieService.get('session')
+      : '';
   }
 
   updateSession(session: Session) {
@@ -17,8 +19,8 @@ export class AuthService {
       const token = session.token;
       const expires = session.expires;
       this.cookieService.set('session', token ? token : '', {
-        path: "/",
-        expires: new Date(expires)
+        path: '/',
+        expires: new Date(expires),
       });
       this.session = session.token;
     }
@@ -29,6 +31,14 @@ export class AuthService {
   }
 
   hasSession() {
-    return this.session != "";
+    return this.session != '';
+  }
+
+  logout() {
+    this.updateSession({
+      token: '',
+      expires: new Date(Date.now()),
+    });
+    document.location.reload();
   }
 }
