@@ -1,0 +1,2 @@
+Add system where someone  can say he is working on a todo where it gets visuallized as an orange minus, someone can say it is done. Then it gets visuallized as a hook and if a todo is pending it gets marked with an red x.
+It gets shown who completed a todo with the name in brackets.
