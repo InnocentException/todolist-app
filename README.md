@@ -9,7 +9,7 @@ This is a todolist web application that has a lot of features. I made this app d
 ## Technologies
 
 - Backend: [NestJS](https://nestjs.com/) A progressive Node.js framework for building efficient, reliable and scalable server-side applications.
-- Frontend: [AngularJS] - HTML enhanced for web apps!
+- Frontend: [AngularJS](https://angular.io/) - HTML enhanced for web apps!
 - Storage: [MongoDB](https://www.mongodb.com) Embrace the Power of Differences.
 
 ## Features
