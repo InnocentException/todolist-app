@@ -1,10 +1,10 @@
 # Todolist App
 
-This is a todolist web application that has a lot of features. I made this app during my internship at Solunio.
+This is a todolist web application that has a lot of features. I made this app during my internship at Solunio. Therefore I wont develop this web application any further.
 [![N|Solid](https://solunio.com/wp-content/uploads/2023/06/SOLUNIO_LOGO_Positiv_RGB_72dpi.png)](https://solunio.com/de)
-> Solunio is a Startup that has its Headquarters in Brunico in South Tyrol
+> Solunio is a Startup that has its Headquarters in Brunico in South Tyrol.
 > This startup specializes in shop floor management and is currently developing a software that
-> helps Companies to visuallize data in  
+> helps Companies to visuallize data in a web ui. From more information you can check out there webside by clicking on the Solunio logo.
 
 ## Technologies
 
