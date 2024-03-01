@@ -134,7 +134,7 @@
         </div>
 
         <div
-          *ngIf="todolistService.todoLists[todolistService.selectedTodoList]"
+          *ngIf="todolistService.todoListMode == 'owned' ? todolistService.todoLists[todolistService.selectedTodoList] : todolistService.sharedTodoLists[todolistService.sharedSelectedTodoList]"
           class="todos-list"
         >
           <div>

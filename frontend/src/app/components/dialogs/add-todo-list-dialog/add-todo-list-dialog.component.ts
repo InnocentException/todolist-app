@@ -54,7 +54,7 @@ export class AddTodoListDialogComponent {
 
   async submitTodoList() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/todolists/add',
+      'api/todolists/add',
       {
         session: this.authService.getSession(),
         title: this.todoListTitleInput?.value,

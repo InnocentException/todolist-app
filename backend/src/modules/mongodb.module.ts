@@ -7,7 +7,7 @@ import { createUserSchema } from "src/schemas/user.schema";
 @Module({
   imports: [
     MongooseModule.forRoot(
-      (process.env.MONGODB_HOST || 'mongodb://localhost') + '/todolists-app',
+     "mongodb://" + (process.env.MONGODB_HOST || 'localhost') + '/todolists-app',
     ),
     MongooseModule.forFeature([
       {

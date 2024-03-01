@@ -52,7 +52,7 @@ export class AccountSettingsComponent {
 
   async fetchAccountInfo() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account',
+      'api/account',
       {
         session: this.authService.getSession(),
       }
@@ -122,7 +122,7 @@ export class AccountSettingsComponent {
       this.phonenumberInput?.valid
     ) {
       const response = await this.httpService.post(
-        'http://localhost:3100/api/account/change',
+        'api/account/change',
         {
           session: this.authService.getSession(),
           firstname: this.firstnameInput?.value,
@@ -174,7 +174,7 @@ export class AccountSettingsComponent {
       this.repeatNewPasswordInput?.valid
     ) {
       const response = await this.httpService.post(
-        'http://localhost:3100/api/account/change_password',
+        'api/account/change_password',
         {
           session: this.authService.getSession(),
           password: this.passwordInput?.value,
@@ -203,7 +203,7 @@ export class AccountSettingsComponent {
 
   async toggleMailMFA() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account/mfa/mail/setup',
+      'api/account/mfa/mail/setup',
       {
         session: this.authService.getSession(),
         enabled: !this.account?.mfa?.mail?.enabled,
@@ -223,7 +223,7 @@ export class AccountSettingsComponent {
             this.fetchAccountInfo();
           } else {
             const response = await this.httpService.post(
-              'http://localhost:3100/api/account/mfa/mail/setup',
+              'api/account/mfa/mail/setup',
               {
                 session: this.authService.getSession(),
                 enabled: false,
@@ -252,7 +252,7 @@ export class AccountSettingsComponent {
 
   async toggleAppMFA() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account/mfa/app/setup',
+      'api/account/mfa/app/setup',
       {
         session: this.authService.getSession(),
         enabled: !this.account?.mfa.app.enabled,
@@ -272,7 +272,7 @@ export class AccountSettingsComponent {
             this.fetchAccountInfo();
           } else {
             const response = await this.httpService.post(
-              'http://localhost:3100/api/account/mfa/app/setup',
+              'api/account/mfa/app/setup',
               {
                 session: this.authService.getSession(),
                 enabled: false,
@@ -324,7 +324,7 @@ export class AccountSettingsComponent {
     dialogRef.afterClosed().subscribe(async (data: any) => {
       if (data == true) {
         const response = await this.httpService.post(
-          'http://localhost:3100/api/account/delete',
+          'api/account/delete',
           {
             session: this.authService.getSession(),
           }

@@ -9,9 +9,11 @@ import { AuthService } from './services/auth/auth.service';
 import { MailModule } from './modules/mail.module';
 import { MailService } from './services/mail/mail.service';
 import { MfaService } from './services/mfa/mfa.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { StaticModule } from './modules/static.module';
 
 @Module({
-  imports: [MongoDBModule, MailModule, SchedulerModule],
+  imports: [MongoDBModule, MailModule, SchedulerModule, StaticModule],
   controllers: [AppController],
   providers: [
     AuthService,

@@ -110,7 +110,7 @@ export class LoginSignupComponent {
 
   async submitLogin() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/login',
+      'api/login',
       {
         username: this.usernameInput?.value,
         password: this.passwordInput?.value,
@@ -143,7 +143,7 @@ export class LoginSignupComponent {
       this.signupRepeatPasswordInput?.valid
     ) {
       const response = await this.httpService.post(
-        'http://localhost:3100/api/register',
+        'api/register',
         {
           firstname: this.signupFirstNameInput?.value,
           lastname: this.signupLastNameInput?.value,

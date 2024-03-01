@@ -63,7 +63,7 @@ export class TodolistService {
 
   async fetchTodoLists() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/todolists/owned',
+      'api/todolists/owned',
       {
         session: this.authService.getSession(),
       }
@@ -81,7 +81,7 @@ export class TodolistService {
 
   async fetchSharedTodoLists() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/todolists/shared',
+      'api/todolists/shared',
       {
         session: this.authService.getSession(),
       }
@@ -99,7 +99,7 @@ export class TodolistService {
 
   async checkTodo(todouid: string, state: boolean) {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolist/${
+      `api/todolist/${
         this.todoListMode == 'owned'
           ? this.todoLists[this.selectedTodoList].uuid
           : this.sharedTodoLists[this.sharedSelectedTodoList].uuid
@@ -121,7 +121,7 @@ export class TodolistService {
 
   async deleteTodo(listuid: string, todouid: string) {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolist/${listuid}/todos/${todouid}/remove`,
+      `api/todolist/${listuid}/todos/${todouid}/remove`,
       {
         session: this.authService.getSession(),
       }
@@ -139,7 +139,7 @@ export class TodolistService {
 
   async deleteTodoList(listuid: string) {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolist/${listuid}/remove`,
+      `api/todolist/${listuid}/remove`,
       {
         session: this.authService.getSession(),
       }
@@ -195,7 +195,7 @@ export class TodolistService {
   }
 
   getSharedSelectedTodoList(index: number) {
-    return this.todoListPageIndex * this.todoListPageSize + index;
+    return this.sharedTodoListPageIndex * this.todoListPageSize + index;
   }
 
   setSharedSelectedTodo(index: number) {

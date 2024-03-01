@@ -37,7 +37,7 @@ export class ConfigureMailMfaComponent {
     @Inject(MAT_DIALOG_DATA) dialogData: {useruid: string}
   ) {
     this.httpService
-      .post('http://localhost:3100/api/account/mfa/mail/send', {
+      .post('api/account/mfa/mail/send', {
         useruid: dialogData.useruid,
       })
       .then((res) => {
@@ -68,7 +68,7 @@ export class ConfigureMailMfaComponent {
   async submitCode() {
     if (this.codeForm.get('code')?.valid) {
       const response = await this.httpService.post(
-        'http://localhost:3100/api/account/mfa/mail/verify',
+        'api/account/mfa/mail/verify',
         {
           session: this.authService.getSession(),
           code: this.codeForm.get('code')?.value,

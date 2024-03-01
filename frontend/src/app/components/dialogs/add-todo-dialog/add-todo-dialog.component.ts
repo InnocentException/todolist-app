@@ -55,7 +55,7 @@ export class AddTodoDialogComponent {
 
   async submitTodo() {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolist/${
+      `api/todolist/${
         this.todoListService.todoListMode == 'owned'
           ? this.todoListService.todoLists[
               this.todoListService.selectedTodoList

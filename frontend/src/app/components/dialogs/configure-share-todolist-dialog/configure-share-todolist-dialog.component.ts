@@ -68,7 +68,7 @@ export class ConfigureShareTodolistDialogComponent {
 
   async fetchAccountUsernameByUUID(uuid: string): Promise<string> {
     const response = await this.httpService.get(
-      `http://localhost:3100/api/account/${uuid}`
+      `api/account/${uuid}`
     );
     if (response.status == 'success') {
       return response.data.username;
@@ -86,7 +86,7 @@ export class ConfigureShareTodolistDialogComponent {
 
   async applySharedUsers() {
     const response = await this.httpService.post(
-      `http://localhost:3100/api/todolist/${this.dialogData.todoList.uuid}/share`,
+      `api/todolist/${this.dialogData.todoList.uuid}/share`,
       {
         session: this.authService.getSession(),
         sharedUsers: this.sharedUsers,

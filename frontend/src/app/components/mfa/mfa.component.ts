@@ -52,7 +52,7 @@ export class MfaComponent {
 
   async submitMailCode() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account/mfa/mail/verify',
+      'api/account/mfa/mail/verify',
       {
         code: this.mailForm.get('code')?.value,
       }
@@ -73,7 +73,7 @@ export class MfaComponent {
 
   async submitAppCode() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account/mfa/app/verify',
+      'api/account/mfa/app/verify',
       {
         code: this.appForm.get('code')?.value,
         useruid: this.useruid,
@@ -92,7 +92,7 @@ export class MfaComponent {
   setMethod(method: string) {
     this.method = method;
     if (this.method == 'mail') {
-      this.httpService.post('http://localhost:3100/api/account/mfa/mail/send', {
+      this.httpService.post('api/account/mfa/mail/send', {
         useruid: this.useruid,
       });
     }

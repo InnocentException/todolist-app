@@ -70,7 +70,7 @@ export class ResetPasswordComponent {
 
   async submitResetPassword() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/reset_password',
+      'api/reset_password',
       {
         token: this.token,
         password: this.passwordInput?.value,
@@ -89,7 +89,7 @@ export class ResetPasswordComponent {
 
   async submitResetPasswordRequest() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/reset_password',
+      'api/reset_password',
       {
         username: this.usernameInput?.value,
       }

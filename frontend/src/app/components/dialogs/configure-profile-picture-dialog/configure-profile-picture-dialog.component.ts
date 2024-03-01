@@ -49,7 +49,7 @@ export class ConfigureProfilePictureDialogComponent {
 
   async submitProfilePicture() {
     const response = await this.httpService.post(
-      'http://localhost:3100/api/account/change',
+      'api/account/change',
       {
         session: this.authService.getSession(),
         profile_picture: this.profile_picture,

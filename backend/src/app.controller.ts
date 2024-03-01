@@ -38,7 +38,7 @@ export class AppController {
     });
   }
 
-  @Post('api/login')
+  @Post('login')
   async login(@Body() body: any, @Ip() ip: string): Promise<string> {
     const username = body.username;
     const password = body.password;
@@ -85,7 +85,7 @@ export class AppController {
     }
   }
 
-  @Post('api/register')
+  @Post('register')
   async register(@Body() body: any): Promise<string> {
     const firstname = body.firstname;
     const lastname = body.lastname;
@@ -133,7 +133,7 @@ export class AppController {
     return this.createAPIError(errormsg);
   }
 
-  @Post('api/reset_password')
+  @Post('reset_password')
   async resetPassword(@Body() body: any): Promise<string> {
     const token = body.token;
     const username = body.username;
@@ -169,7 +169,7 @@ export class AppController {
     }
   }
 
-  @Post('api/account')
+  @Post('account')
   async getUser(@Body() body: any): Promise<string> {
     const session = body.session;
 
@@ -181,7 +181,7 @@ export class AppController {
     }
   }
 
-  @Get('api/account/:useruid')
+  @Get('account/:useruid')
   async getUserByUUID(
     @Body() body: any,
     @Param('useruid') useruid: string,
@@ -199,7 +199,7 @@ export class AppController {
     }
   }
 
-  @Post('api/account/:action')
+  @Post('account/:action')
   async changeUser(
     @Body() body: any,
     @Param('action') action: string,
@@ -246,7 +246,7 @@ export class AppController {
     return this.createAPIError(errormsg);
   }
 
-  @Post('api/account/mfa/mail/:mode')
+  @Post('account/mfa/mail/:mode')
   async MailMFA(
     @Body() body: any,
     @Param('mode') mode: string,
@@ -305,7 +305,7 @@ export class AppController {
     }
   }
 
-  @Post('api/account/mfa/app/:mode')
+  @Post('account/mfa/app/:mode')
   async AppMFA(
     @Body() body: any,
     @Param('mode') mode: string,
@@ -367,7 +367,7 @@ export class AppController {
     }
   }
 
-  @Post('api/account/change_password')
+  @Post('account/change_password')
   async changePassword(@Body() body: any): Promise<string> {
     const password = body.password;
     const newPassword = body.newPassword;
@@ -399,7 +399,7 @@ export class AppController {
     }
   }
 
-  @Post('api/todolists/:type')
+  @Post('todolists/:type')
   async getTodoListsByType(
     @Body() body: any,
     @Param('type') type: string,
@@ -444,7 +444,7 @@ export class AppController {
     return this.createAPIError('This session is not valid!');
   }
 
-  @Post('api/todolist/:listuid/:action?')
+  @Post('todolist/:listuid/:action?')
   async handleTodoLists(
     @Body() body: any,
     @Param('listuid') listuid: string,
@@ -529,7 +529,7 @@ export class AppController {
   }
 
   // Remove and Change a Todo from a Todolist
-  @Post('api/todolist/:listuid/todos/:todouid/:action?')
+  @Post('todolist/:listuid/todos/:todouid/:action?')
   async handleTodo(
     @Body() body: any,
     @Param('listuid') listuid: string,

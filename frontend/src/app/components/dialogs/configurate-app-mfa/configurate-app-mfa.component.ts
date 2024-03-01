@@ -49,7 +49,7 @@ export class ConfigurateAppMfaComponent {
   });
 
   async submitAppMFACode() {
-    const response = await this.httpService.post('http://localhost:3100/api/account/mfa/app/verify', {
+    const response = await this.httpService.post('api/account/mfa/app/verify', {
       session: this.authService.getSession(),
       code: this.appForm.get('code')?.value,
       useruid: this.data.useruid,
