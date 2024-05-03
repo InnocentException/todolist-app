@@ -28,7 +28,7 @@ The Todolist App was currently only tested with [Node.js](https://nodejs.org/) 2
 If you have node js installed you can clone this repository with git cli or download it as a zip (and unzip it).
 After you have donloaded it you have two options:
 
-### Plain
+### Run in Terminal
 
 To build and start the plain project you can use the following commands:
 
@@ -40,7 +40,7 @@ export MAIL_USER=...
 export MAIL_PASSWORD=...
 ```
 
-### Prodman(Container)
+### Podman(Container)
 
 To build the project as a container in podman you can use the following commands:
 
