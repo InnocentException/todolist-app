@@ -32,7 +32,7 @@ After you have donloaded it you have two options:
 
 To build and start the plain project you can use the following commands:
 
-```sh
+```bash
 cd todolist-app
 bash build.sh
 bash start.sh
@@ -44,14 +44,14 @@ export MAIL_PASSWORD=...
 
 To build the project as a container in podman you can use the following commands:
 
-```sh
+```bash
 cd todolist-app
 bash podman_build.sh
 ```
 
 To start the container use this command
 
-```sh
+```bash
 bash podman_start.sh MAIL_USER MAIL_PASSWORD MONGODB_HOST [MONGODB_PORT]
 ```
 
